@@ -1,0 +1,53 @@
+name: Continuous Integration
+
+
+#Trigger CI on this events
+on:
+    push:
+        branches: [main, dev, 'feature/*'] # run CI on main, dev and feature branches
+    pull_request:
+        branches: [main, dev]  #run CI when PR targets main, dev
+
+
+jobs:
+    build-and-test:
+        runs-on: ubuntu-latest
+
+
+        strategy:
+            matrix:
+                node-version: [20, 18]  #test project on node 20 and 18
+
+                
+        steps:
+            #checkout the repository
+            - name: Checkout code 
+              uses: actions/checkout@v3
+
+            #Set up Node.js
+            - name: Setup Node.js
+              uses: actions/setup-node@v3
+              with:
+                node-version: ${{matrix.node-version}}
+                cache: 'npm'  #cache npm dependencies for faster build
+
+            # Install dependencies
+            - name: Install dependencies
+              run: npm ci  # 'npm ci' is faster & reproducible than 'npm install'
+            
+            # Run linter
+            - name: Run ESLint
+              run: npm run lint
+
+            # Run Tests
+            - name: Run tests
+              run: npm run test:e2e
+
+            # Optional: upload test results for github actions reporting
+            - name: Upload test results     #upload even if tests fail
+              if: always()              
+              uses: actions/upload-artifact@v3
+              with:
+                name: test-results
+                path: coverage/         #assuming your test coverage reports are here
+
