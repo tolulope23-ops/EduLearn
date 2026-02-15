@@ -46,7 +46,7 @@ jobs:
             # Optional: upload test results for github actions reporting
             - name: Upload test results     #upload even if tests fail
               if: always()              
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               with:
                 name: test-results
                 path: coverage/         #assuming your test coverage reports are here
