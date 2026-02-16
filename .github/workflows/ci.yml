@@ -16,7 +16,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [20, 18]  #test project on node 20 and 18
+                node-version: [20, 24, 18]  #test project on node 20 and 18
 
                 
         steps:
@@ -40,7 +40,7 @@ jobs:
               run: npm run lint
 
             - name: Start server
-              run: npm run start &  # runs in background
+              run: npm run dev &  # runs in background
 
             # Run Tests
             - name: Run tests
