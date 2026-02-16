@@ -18,7 +18,8 @@
     "migrate:undo": "npx sequelize-cli db:migrate:undo",
     "migrate:undo:all": "npx sequelize-cli db:migrate:undo:all",
 
-    "seed": "npx sequelize-cli db:seed --seed",
+    "seed:create": "npx sequelize-cli seed:generate",
+    "seed": "npx sequelize-cli db:seed",
     "seed:undo": "npx sequelize-cli db:seed:undo --seed",
 
     "migrate:prod": "NODE_ENV=production npx sequelize-cli db:migrate",
