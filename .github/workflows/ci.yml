@@ -39,6 +39,9 @@ jobs:
             - name: Run ESLint
               run: npm run lint
 
+            - name: Start server
+              run: npm run start &  # runs in background
+
             # Run Tests
             - name: Run tests
               run: npm run test:e2e
