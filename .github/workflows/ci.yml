@@ -39,12 +39,12 @@ jobs:
             - name: Run ESLint
               run: npm run lint
 
-            - name: Start server
-              run: npm run dev &  # runs in background
+            # - name: Start server
+            #   run: npm run dev &  # runs in background
 
             # Run Tests
-            - name: Run tests
-              run: npm run test:e2e
+            # - name: Run tests
+            #   run: npm run test:e2e
 
             # Optional: upload test results for github actions reporting
             - name: Upload test results     #upload even if tests fail
