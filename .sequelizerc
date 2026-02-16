@@ -1,10 +1,8 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
+const path = require('path');
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-export default {
-  'config': path.resolve(__dirname, 'src/common/database/config/config.js'),
-  'migrations-path': path.resolve(__dirname, 'src/common/database/migrations'),
-  'seeders-path': path.resolve(__dirname, 'src/common/database/seeders'),
+module.exports = {
+  'config': path.resolve('src/common/database/config/config.cjs'),
+  'migrations-path': path.resolve('src/common/database/migrations'),
+  'seeders-path': path.resolve('src/common/database/seeders'),
+  'models-path': path.resolve('src/common/database/models')
 };
