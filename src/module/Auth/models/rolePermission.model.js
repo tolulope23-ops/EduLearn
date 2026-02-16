@@ -1,32 +1,31 @@
 import sequelize from "../connection";
 import { DataTypes } from "sequelize";
 
-const RefreshToken = sequelize.define("RefreshToken", {
+const RolePermission = sequelize.define("RolePermission",{
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
 
-    sessionId: {
+    roleId: {
       type: DataTypes.UUID,
       allowNull: false,
     },
 
-    tokenHash: {
-      type: DataTypes.STRING,
+    permissionId: {
+      type: DataTypes.UUID,
       allowNull: false,
     },
-
-    expiresAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-
-    revokedAt: DataTypes.DATE,
-  }, {
+}, {
     timestamps: true,
-    tableName: "refresh_tokens"
+    tableName: "role_permissions",
+    indexes: [
+      {
+        unique: true,
+        fields: ["roleId", "permissionId"],
+      },
+    ],
 });
 
-return RefreshToken;
+return RolePermission;

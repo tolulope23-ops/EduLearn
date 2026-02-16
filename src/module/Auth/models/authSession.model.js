@@ -1,32 +1,34 @@
 import sequelize from "../connection";
 import { DataTypes } from "sequelize";
 
-const RefreshToken = sequelize.define("RefreshToken", {
+const AuthSession = sequelize.define("AuthSession", {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
 
-    sessionId: {
+    userId: {
       type: DataTypes.UUID,
       allowNull: false,
     },
 
-    tokenHash: {
+    ipAddress: {
       type: DataTypes.STRING,
       allowNull: false,
     },
 
-    expiresAt: {
-      type: DataTypes.DATE,
+    userAgent: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
 
     revokedAt: DataTypes.DATE,
-  }, {
-    timestamps: true,
-    tableName: "refresh_tokens"
-});
+}, {
+      timestamps: true,
+      tableName: 'auth_sessions'
+    }
+);
 
-return RefreshToken;
+return AuthSession;
+

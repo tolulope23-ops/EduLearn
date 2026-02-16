@@ -1,15 +1,21 @@
-import sequelize from "../connection";
+import sequelize from "../../../common/database/connection";
 import { DataTypes } from "sequelize";
 
-const RefreshToken = sequelize.define("RefreshToken", {
+const VerificationToken = sequelize.define("VerificationToken", {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
 
-    sessionId: {
+    userId: {
       type: DataTypes.UUID,
+      allowNull: false,
+      unique: true,
+    },
+
+    type: {
+      type: DataTypes.ENUM("EMAIL_VERIFICATION", "PASSWORD_RESET"),
       allowNull: false,
     },
 
@@ -23,10 +29,11 @@ const RefreshToken = sequelize.define("RefreshToken", {
       allowNull: false,
     },
 
-    revokedAt: DataTypes.DATE,
-  }, {
+    usedAt: DataTypes.DATE,
+}, {
     timestamps: true,
-    tableName: "refresh_tokens"
-});
+    tableName: "verification_tokens"
+  }
+);
 
-return RefreshToken;
+  return VerificationToken;
