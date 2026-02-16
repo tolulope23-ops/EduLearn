@@ -16,7 +16,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [20, 24, 18]  #test project on node 20 and 18
+                node-version: [20, 24]  #test project on node 20 and 24
 
                 
         steps:
