@@ -28,4 +28,4 @@ const RolePermission = sequelize.define("RolePermission",{
     ],
 });
 
-return RolePermission;
+export default RolePermission;

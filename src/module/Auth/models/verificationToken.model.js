@@ -36,4 +36,4 @@ const VerificationToken = sequelize.define("VerificationToken", {
   }
 );
 
-  return VerificationToken;
+export default VerificationToken;

@@ -28,4 +28,4 @@ const UserRole = sequelize.define("UserRole",{
     ],
 });
 
-return UserRole;
+export default UserRole;

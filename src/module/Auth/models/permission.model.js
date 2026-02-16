@@ -23,4 +23,4 @@ const Permission = sequelize.define("Permission",{
     tableName: 'permissions'
 });
 
-return Permission;
+export default Permission;

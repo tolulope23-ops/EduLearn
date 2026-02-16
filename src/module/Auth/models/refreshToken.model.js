@@ -29,4 +29,4 @@ const RefreshToken = sequelize.define("RefreshToken", {
     tableName: "refresh_tokens"
 });
 
-return RefreshToken;
+export default RefreshToken;

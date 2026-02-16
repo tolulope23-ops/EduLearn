@@ -53,4 +53,4 @@ const AuthCredential = sequelize.define("AuthCredential", {
   }
 );
 
-return AuthCredential;
+export default AuthCredential;

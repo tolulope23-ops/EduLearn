@@ -30,5 +30,5 @@ const AuthSession = sequelize.define("AuthSession", {
     }
 );
 
-return AuthSession;
+export default AuthSession;
 

@@ -22,4 +22,4 @@ const Role = sequelize.define("Role", {
     tableName: "roles"
 });
 
-return Role;
+export default Role;
