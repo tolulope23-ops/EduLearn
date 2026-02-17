@@ -29,7 +29,10 @@ const VerificationToken = sequelize.define("VerificationToken", {
       allowNull: false,
     },
 
-    usedAt: DataTypes.DATE,
+    usedAt:{ 
+      type: DataTypes.DATE,
+      allowNull: true
+    },
 }, {
     timestamps: true,
     tableName: "verification_tokens"

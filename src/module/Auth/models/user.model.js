@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import sequelize from "../../../common/database/connection";
 import sequelize from '../connection';
 
 const User = sequelize.define("User", {
@@ -11,7 +11,7 @@ const User = sequelize.define("User", {
   email: {
     type: DataTypes.STRING,
     unique: true,
-    allowNull: true,
+    allowNull: false,
   },
 
   accountStatus: {

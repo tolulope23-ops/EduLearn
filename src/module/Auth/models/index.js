@@ -1,4 +1,4 @@
-// Import all models
+// Import all models and export for easy accesibility when importing from other file.
 import User from './user.model.js';
 import AuthCredential from './authCredential.model.js';
 import RefreshToken from './refreshToken.model.js';

@@ -1,4 +1,4 @@
-import sequelize from "../connection";
+import sequelize from "../../../common/database/connection";
 import { DataTypes } from "sequelize";
 
 const RefreshToken = sequelize.define("RefreshToken", {
@@ -23,7 +23,10 @@ const RefreshToken = sequelize.define("RefreshToken", {
       allowNull: false,
     },
 
-    revokedAt: DataTypes.DATE,
+    revokedAt: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
   }, {
     timestamps: true,
     tableName: "refresh_tokens"

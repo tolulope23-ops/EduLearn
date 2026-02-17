@@ -1,4 +1,4 @@
-import sequelize from "../connection";
+import sequelize from "../../../common/database/connection";
 import { DataTypes } from "sequelize";
 
 const AuthCredential = sequelize.define("AuthCredential", {
@@ -35,7 +35,10 @@ const AuthCredential = sequelize.define("AuthCredential", {
     defaultValue: 0,
   },
 
-  lockedUntil: DataTypes.DATE,
+  lockedUntil: { 
+    type: DataTypes.DATE,
+    allowNull: true
+  },
 
   lastLogin: {
     type: DataTypes.DATE,

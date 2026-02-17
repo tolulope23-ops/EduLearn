@@ -1,4 +1,4 @@
-import sequelize from "../connection";
+import sequelize from "../../../common/database/connection";
 import { DataTypes } from "sequelize";
 
 const AuthSession = sequelize.define("AuthSession", {
@@ -23,7 +23,10 @@ const AuthSession = sequelize.define("AuthSession", {
       allowNull: false,
     },
 
-    revokedAt: DataTypes.DATE,
+    revokedAt: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
 }, {
       timestamps: true,
       tableName: 'auth_sessions'

@@ -1,4 +1,4 @@
-import sequelize from "../connection";
+import sequelize from "../../../common/database/connection";
 import { DataTypes } from "sequelize";
 
 const UserRole = sequelize.define("UserRole",{
