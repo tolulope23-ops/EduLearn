@@ -1,5 +1,4 @@
 import sequelize from "../../../common/database/connection";
-import sequelize from '../connection';
 
 const User = sequelize.define("User", {
   id: {

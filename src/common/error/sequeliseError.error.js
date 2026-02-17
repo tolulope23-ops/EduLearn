@@ -10,7 +10,7 @@ import {
   UniqueConstraintError,
   ForeignKeyConstraintError,
   EmptyResultError,
-  DatabaseError,
+  SequelizeDatabaseError,
   ConnectionError
 } from "sequelize";
 
