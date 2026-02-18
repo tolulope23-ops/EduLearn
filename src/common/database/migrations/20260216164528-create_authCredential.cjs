@@ -22,11 +22,6 @@ module.exports = {
         defaultValue: 'PASSWORD'
       },
 
-      identifier: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-
       secretHash: {
         type: Sequelize.STRING,
         allowNull: false
