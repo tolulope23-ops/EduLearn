@@ -52,3 +52,18 @@ newPassword: z
   .regex(/(?=.*[0-9])/, "Must contain a number")
   .regex(/(?=.*[\W])/, "Must contain a special character")
 });
+
+// ---------- Role Validation ----------
+export const roleSchema = z.object({
+  id: z.string().uuid().optional(),
+  roleName: z.enum(['STUDENT', 'TEACHER']),
+  description: z.string().optional(),
+});
+
+// ---------- Permission Validation ----------
+export const permissionSchema = z.object({
+  id: z.string().uuid().optional(),
+  name: z.string().min(1),
+  description: z.string().optional(),
+});
+
