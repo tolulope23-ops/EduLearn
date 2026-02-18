@@ -1,4 +1,4 @@
-import { AppError } from "./appError.error";
+import { AppError } from "./appError.error.js";
 
 export class BadRequestError extends AppError {
   constructor(message = "Bad request") {
@@ -11,6 +11,13 @@ export class UnauthorizedError extends AppError {
     super(message, 401);
   }
 };
+
+export class InvalidTokenError extends Error {
+  constructor(message = "Invalid token") {
+    super(message);
+    this.name = "InvalidTokenError";
+  }
+}
 
 export class ForbiddenError extends AppError {
   constructor(message = "Forbidden") {

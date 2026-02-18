@@ -4,17 +4,16 @@ import {
   InvalidReferenceError,
   DatabaseError,
   DatabaseConnectionError,
-} from "./domainError.error"
+} from "./domainError.error.js"
 
 import {
   UniqueConstraintError,
   ForeignKeyConstraintError,
   EmptyResultError,
-  SequelizeDatabaseError,
   ConnectionError
 } from "sequelize";
 
-export default handleSequelizeError = (error) => {
+const handleSequelizeError = (error) => {
   if (error instanceof UniqueConstraintError) {
     throw new DuplicateRecordError();
   };
@@ -31,9 +30,11 @@ export default handleSequelizeError = (error) => {
     throw new DatabaseConnectionError();
   };
 
-  if (error instanceof SequelizeDatabaseError) {
+  if (error instanceof DatabaseError) {
     throw new DatabaseError();
   };
 
   throw error;
-}
+};
+
+export default handleSequelizeError;
