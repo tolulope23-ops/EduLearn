@@ -1,7 +1,7 @@
 import { ZodError } from "zod";
-import { BadRequestError } from "../error/httpError.error";
+import { BadRequestError } from "../error/httpError.error.js";
 
-export const validateRequest = (schema) => { return (req, res, next) => {
+const validateRequest = (schema) => { return (req, res, next) => {
   try {
     // Parse and validate request body
     const validated = schema.parse(req.body);
@@ -24,3 +24,5 @@ export const validateRequest = (schema) => { return (req, res, next) => {
     }
   };
 };
+
+export default validateRequest;

@@ -1,14 +1,14 @@
-import { AppError } from "../error/appError.error";
+import { AppError } from "../error/appError.error.js";
 
-export default errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, next) => {
     if (err instanceof AppError) {
         return res.status(err.statusCode).json({
             status: "error",
             message: err.message,
-            stack: err.stack
+            stack: process.env.NODE_ENV === "development" ? err.stack : undefined
         });
     }
-
+    
     console.error("UNEXPECTED ERROR:", err);
 
     return res.status(500).json({
@@ -16,3 +16,5 @@ export default errorHandler = (err, req, res, next) => {
         message: "Something went wrong",
     });
 };
+
+export default errorHandler;
