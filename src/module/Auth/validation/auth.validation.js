@@ -23,7 +23,8 @@ export const signupSchema = z.object({
     .regex(/(?=.*[0-9])/, "Password must contain a number")
     .regex(/(?=.*[\W])/, "Password must contain a special character")
 });
-//
+
+
 export const loginSchema = z.object({
   email: z.string().email("Invalid Email address"),
   password: z.string().min(8, "Password is required"),
@@ -35,11 +36,14 @@ export const loginSchema = z.object({
     .regex(/(?=.*[\W])/, "Password must contain a special character")
 });
 
+
 export const forgotPasswordSchema = z.object({
   email: z.string().email("Invalid email address"),
 });
 
+
 export const resetPasswordSchema = z.object({
+token: z.string(),
 newPassword: z
   .string()
   .min(8, "Password must be at least 8 characters")
