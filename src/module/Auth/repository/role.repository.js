@@ -1,5 +1,5 @@
-const { Role } = require("../models"); // import Sequelize Role model
-const { handleSequelizeError } = require("../error/sequelizeErrors.error");
+import  Role  from "../models/role.model.js";
+import handleSequelizeError from "../../../common/error/sequeliseError.error.js";
 
 export class RoleRepository {
 

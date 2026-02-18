@@ -1,7 +1,7 @@
-const { AuthSession } = require("../models"); // Sequelize model
-const { handleSequelizeError } = require("../error/sequelizeErrors.error");
+import AuthSession from "../models/authSession.model.js";
+import handleSequelizeError from "../../../common/error/sequeliseError.error.js";
 
-export class SessionRepository {
+export class UserSessionRepository {
 
   // CREATE QUERY OPERATION
   async createSession(data) {
@@ -60,7 +60,7 @@ export class SessionRepository {
     }
   }
 
-  async revokeUsersSessions(userId) {
+  async revokeAllUsersSessions(userId) {
     try {
       await AuthSession.update(
         { revokedAt: new Date() },

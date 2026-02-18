@@ -1,5 +1,8 @@
-const { UserRole, User, Role } = require("../models"); // Sequelize models
-const { handleSequelizeError } = require("../error/sequelizeErrors.error");
+import UserRole from "../models/userRole.model.js";
+import Role from "../models/role.model.js";
+import User from "../models/user.model.js";
+
+import handleSequelizeError from "../../../common/error/sequeliseError.error.js";
 
 export class UserRoleRepository {
 
@@ -10,8 +13,8 @@ export class UserRoleRepository {
       return this.mapToUserRoleEntity(user_role);
     } catch (error) {
       handleSequelizeError(error);
-    }
-  }
+    };
+  };
 
   // READ QUERY OPERATIONS
   async getRolesByUser(userId) {
@@ -79,5 +82,5 @@ export class UserRoleRepository {
       userId: user_role.userId,
       roleId: user_role.roleId,
     };
-  }
+  };
 };

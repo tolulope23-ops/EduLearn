@@ -1,7 +1,8 @@
-const { RefreshToken, AuthSession } = require("../models"); // Sequelize models
-const { handleSequelizeError } = require("../error/sequelizeErrors.error");
+import AuthSession from "../models/authSession.model.js";
+import RefreshToken from "../models/refreshToken.model.js";
+import handleSequelizeError from "../../../common/error/sequeliseError.error.js";
 
-export class UserRefreshToken {
+export class UserRefreshTokenRepository {
 
   // CREATE QUERY OPERATION
   async createToken(data) {
@@ -36,7 +37,7 @@ export class UserRefreshToken {
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
 
   // REVOKE TOKEN
   async revokeToken(id) {
@@ -55,7 +56,39 @@ export class UserRefreshToken {
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
+
+  async revokeBySessionId(sessionId) {
+  try {
+    await RefreshToken.update({ revokedAt: new Date() },
+      {
+        where: {
+          sessionId,
+          revokedAt: null
+        }
+      });
+
+    return true;
+
+  } catch (error) {
+    handleSequelizeError(error);
+  };
+};
+
+ async revokeAllRefreshToken(userId) {
+  try {
+    await RefreshToken.update({ revokedAt: new Date() },
+      {
+        where: {
+          userId,
+          revokedAt: null
+        }
+      }
+    );
+  } catch (error) {
+    handleSequelizeError(error);
+  };
+};
 
   // HELPER: Map Sequelize instance to domain entity
   mapToRefreshTokenEntity(token) {

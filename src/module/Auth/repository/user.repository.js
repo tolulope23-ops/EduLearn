@@ -1,5 +1,5 @@
-import { User } from "../models";
-const  handleSequelizeError  = require("../../../common/error/sequeliseError.error"); // create a helper similar to Prisma one
+import User from '../models/user.model.js';
+import handleSequelizeError from '../../../common/error/sequeliseError.error.js';
 
 export class UserRepository {
 

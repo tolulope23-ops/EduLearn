@@ -1,5 +1,5 @@
-const { AuthCredential } = require("../models");
-const { handleSequelizeError } = require("../error/sequelizeErrors.error");
+import  AuthCredential  from "../models/authCredential.model.js";
+import handleSequelizeError from "../../../common/error/sequeliseError.error.js";
 
 export class UserAuthRepository {
 
@@ -64,6 +64,18 @@ export class UserAuthRepository {
       await userAuth.save();
 
       return this.mapUserCredentialEntity(userAuth);
+    } catch (error) {
+      handleSequelizeError(error);
+    }
+  };
+
+  //Update user password(secret hash)
+  async updateUserPassword(userId, newPassword){
+    try {
+      await AuthCredential.update({secretHash: newPassword},{where: {userId}});
+
+      const updatedUserAuth = await AuthCredential.findOne({ where: { userId } });
+      return this.mapUserCredentialEntity(updatedUserAuth);
     } catch (error) {
       handleSequelizeError(error);
     }

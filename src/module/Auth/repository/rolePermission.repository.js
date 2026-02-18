@@ -1,7 +1,9 @@
-const { RolePermission, Role, Permission } = require("../models"); // import your Sequelize models
-const { handleSequelizeError } = require("../error/sequelizeErrors.error"); // your error handler
+import Role from '../models/role.model.js';
+import RolePermission from '../models/rolePermission.model.js';
+import Permission from '../models/permission.model.js';
+import handleSequelizeError from '../../../common/error/sequeliseError.error.js';
 
-export class RolePermissionRepository {
+export class UserRolePermissionRepository {
   
   // CREATE: assign a permission to a role
   async assignPermissionToRole(roleId, permissionId) {

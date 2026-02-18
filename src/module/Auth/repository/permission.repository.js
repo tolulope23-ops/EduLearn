@@ -1,7 +1,7 @@
-const { Permission } = require("../models"); // Sequelize Permission model
-const { handleSequelizeError } = require("../error/sequelizeErrors.error");
+import Permission from "../models/permission.model.js";
+import handleSequelizeError from "../../../common/error/sequeliseError.error.js";
 
-class PermissionRepository {
+export class UserPermissionRepository {
 
   // CREATE QUERY OPERATION
   async createPermission(data) {

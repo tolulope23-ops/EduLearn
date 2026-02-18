@@ -1,7 +1,7 @@
-const { VerificationToken } = require("../models"); // Sequelize model
-const { handleSequelizeError } = require("../error/sequelizeErrors.error");
+import VerificationToken from "../models/verificationToken.model.js";
+import handleSequelizeError from "../../../common/error/sequeliseError.error.js";
 
-export class UserVerificationToken {
+export class UserAuthVerificationRepository {
 
   async createVerificationToken(data) {
     try {
@@ -24,6 +24,7 @@ export class UserVerificationToken {
       });
 
       return verify ? this.mapUserVerificationTokenEntity(verify) : null;
+      
     } catch (error) {
       handleSequelizeError(error);
     }
@@ -70,5 +71,3 @@ export class UserVerificationToken {
     };
   };
 };
-
-module.exports = UserVerificationToken;
