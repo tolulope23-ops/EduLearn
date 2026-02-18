@@ -54,8 +54,6 @@ module.exports = {
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
     });
-
-    await queryInterface.addIndex('auth_credentials', ['type','identifier'], { unique: true });
   },
 
   async down (queryInterface, Sequelize) {
