@@ -19,12 +19,7 @@ const AuthCredential = sequelize.define("AuthCredential", {
     allowNull: false,
     defaultValue: "PASSWORD"
   },
-
-  identifier: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-
+  
   secretHash: {
     type: DataTypes.STRING,
     allowNull: false,
