@@ -1,7 +1,7 @@
 const { VerificationToken } = require("../models"); // Sequelize model
 const { handleSequelizeError } = require("../error/sequelizeErrors.error");
 
-class UserVerificationToken {
+export class UserVerificationToken {
 
   async createVerificationToken(data) {
     try {

@@ -38,14 +38,6 @@ export class UserAuthRepository {
     }
   };
 
-  async getUserCredentialByIdentifier(identifier) {
-    try {
-      const userAuth = await AuthCredential.findOne({ where: { identifier } });
-      return userAuth ? this.mapUserCredentialEntity(userAuth) : null;
-    } catch (error) {
-      handleSequelizeError(error);
-    }
-  };
 
   // Increment failedAttempts
   async incrementFailedAttempts(userId) {
@@ -100,7 +92,6 @@ export class UserAuthRepository {
       id: userAuth.id,
       userId: userAuth.userId,
       type: userAuth.type,
-      identifier: userAuth.identifier,
       secretHash: userAuth.secretHash,
       failedAttempts: userAuth.failedAttempts,
       lockedUntil: userAuth.lockedUntil ?? undefined,
