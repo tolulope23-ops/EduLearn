@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "../config/env.config.js";
+import { JWT_SECRET } from "../../../common/config/env.config.js";
 
 export async function createToken() {
   const rawToken = crypto.randomBytes(32).toString("hex");
@@ -12,17 +12,23 @@ export async function createToken() {
 export async function generateAccessToken(userId, sessionId) {
   return jwt.sign(
     {
-      user: userId,
-      type: "access",
-      sessionId: sessionId,
+      userId,
+      sessionId,
+      type:"access"
     },
     JWT_SECRET,
     {
-      expiresIn: "1d",
+      expiresIn: "15m",
     }
   );
 };
 
 export function verifyAccessToken(token) {
-  return jwt.verify(token, JWT_SECRET);
+ const payload = jwt.verify(token, JWT_SECRET);
+
+  if (payload.type !== "access") {
+    throw new Error("Invalid token type");
+  }
+  
+  return payload;
 };
