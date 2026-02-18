@@ -1,4 +1,5 @@
-import sequelize from "../../../common/database/connection";
+import sequelize from "../../../common/database/connection.js";
+import { DataTypes } from "sequelize";
 
 const User = sequelize.define("User", {
   id: {
@@ -25,6 +26,7 @@ const User = sequelize.define("User", {
 
   emailVerifiedAt: {
     type: DataTypes.DATE,
+    allowNull: true
   },
 
 }, {

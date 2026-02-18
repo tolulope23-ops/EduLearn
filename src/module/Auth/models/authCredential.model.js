@@ -1,4 +1,4 @@
-import sequelize from "../../../common/database/connection";
+import sequelize from "../../../common/database/connection.js";
 import { DataTypes } from "sequelize";
 
 const AuthCredential = sequelize.define("AuthCredential", {
@@ -37,17 +37,11 @@ const AuthCredential = sequelize.define("AuthCredential", {
 
   lastLogin: {
     type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
+    allowNull: true,
   },
 }, {
     timestamps: true,
-    tableName: 'auth_credentials',
-    indexes: [
-      {
-        unique: true,
-        fields: ["type", "identifier"],
-      },
-    ],
+    tableName: 'auth_credentials'
   }
 );
 
