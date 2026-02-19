@@ -9,6 +9,7 @@ export class EmailService{
         this.transporter = nodemailer.createTransport({
             host: MAIL_HOST,
             port: MAIL_PORT,
+            secure: false,
             auth: {
                 user: MAIL_USER,
                 pass: MAIL_PASSWORD,

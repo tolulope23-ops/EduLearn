@@ -39,23 +39,22 @@ export class UserAuthService {
     if(userExists)
         throw new DuplicateRecordError("Email already Exists");
 
-    const hashPass = this.hashPassword.hash(password);
-
+    
+    const hashPass = await this.hashPassword.hash(password);
+    
     const newUser = await this.userRepo.createUser({email});
     
     await this.userAuth.createUserCredential({
         userId: newUser.id,
         type: 'PASSWORD',
-        secrethash: hashPass
+        secretHash: hashPass
     });
 
     // get role id by name
     const role = await this.role.getRoleByName("STUDENT");
-
+    
     // Assign default role to user
-    await this.userRole.assignRoleToUser(newUser.id, role.id);
-
-    await this.verifyService.sendAuthVerification(newUser.id, email, 'EMAIL_VERIFICATION');
+    await this.userRole.assignRoleToUser({userId: newUser.id, roleId: role.id});
 
     return newUser;
   };
