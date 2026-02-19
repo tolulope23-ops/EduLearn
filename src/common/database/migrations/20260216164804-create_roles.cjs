@@ -10,7 +10,7 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4
       },
 
-      role_name: {
+      roleName: {
         type: Sequelize.ENUM('STUDENT','TEACHER'),
         allowNull: false
       },

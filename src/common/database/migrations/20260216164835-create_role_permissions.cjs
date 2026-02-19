@@ -10,7 +10,7 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4
       },
 
-      role_id: {
+      roleId: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
@@ -20,7 +20,7 @@ module.exports = {
         onDelete: 'CASCADE'
       },
 
-      permission_id: {
+      permissionId: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
@@ -43,7 +43,7 @@ module.exports = {
       }
     });
 
-    await queryInterface.addIndex('role_permissions', ['role_id','permission_id'], { unique: true });
+    await queryInterface.addIndex('role_permissions', ['roleId','permissionId'], { unique: true });
   },
 
   async down (queryInterface, Sequelize) {
