@@ -20,7 +20,7 @@ import { UserRoleRepository } from "./repository/userRole.repository.js";
 const userRepoInstance = new UserRepository();
 const userAuthRepoInstance = new UserAuthRepository();
 const passwordHash = new PasswordHasher();
-const role = new RoleRepository();
+const roleRep = new RoleRepository();
 const userRole = new UserRoleRepository();
 
 const userVerificationRepoInstance = new UserAuthVerificationRepository();
@@ -51,8 +51,8 @@ export const authService = new UserAuthService(
   verificationService,
   sessionService,
   refreshTokenService,
-  role,
-  userRole
+  userRole,
+  roleRep
 );
 
 export const authMiddleware = new UserAuthMiddleware(sessionRepoInstance);
