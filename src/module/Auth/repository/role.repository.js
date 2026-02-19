@@ -37,6 +37,7 @@ export class RoleRepository {
   async getRoleByName(roleName) {
     try {
       const role = await Role.findOne({ where: { roleName } });
+
       return role ? this.mapToRoleEntity(role) : null;
     } catch (error) {
       handleSequelizeError(error);
