@@ -8,7 +8,7 @@ module.exports = {
     await queryInterface.bulkInsert('roles', [
       {
         id: uuidv4(),
-        role_name: 'STUDENT',
+        roleName: 'STUDENT',
         description: "Student's role",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -16,7 +16,7 @@ module.exports = {
 
       {
         id: uuidv4(),
-        role_name: 'TEACHER',
+        roleName: 'TEACHER',
         description: "Teacher's role",
         createdAt: new Date(),
         updatedAt: new Date(),
