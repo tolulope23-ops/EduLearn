@@ -1,10 +1,6 @@
-export class AppError extends Error{
-    constructor(message, statusCode, isOperational = true){
-        super(message);
-
-        this.statusCode = statusCode;
-        this.isOperational = isOperational;
-
-        Error.captureStackTrace(this, this.constructor);
-    };
+export class DomainError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = this.constructor.name;
+  }
 };

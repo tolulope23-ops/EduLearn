@@ -1,8 +1,9 @@
-import { DuplicateRecordError, InvalidCredentialsError, RecordNotFoundError } from "../../../common/error/domainError.error.js";
+import { DuplicateRecordError, InvalidCredentialsError, RecordNotFoundError} from "../../../common/error/domainError.error.js";
 import { UserAuthRepository } from "../repository/authCredential.repository.js";
 import { RoleRepository } from "../repository/role.repository.js";
 import { UserRepository } from "../repository/user.repository.js";
 import { UserRoleRepository } from "../repository/userRole.repository.js";
+import { UserAuthVerificationRepository } from "../repository/verificationToken.repository.js";
 import { PasswordHasher } from "../utils/passwordHashing.utils.js";
 import { generateAccessToken } from "../utils/verificationToken.utils.js";
 import { UserRefreshTokenService } from "./refreshToken.service.js";
@@ -15,137 +16,230 @@ export class UserAuthService {
    * @param {UserAuthRepository} userAuth
    * @param {PasswordHasher} hashPassword
    * @param {UserAuthVerificationService} verifyService
+   * @param {UserAuthVerificationRepository} verifyRepo
    * @param {UserSessionService} session 
    * @param {UserRefreshTokenService} refreshToken
    * @param {UserRoleRepository} userRole
    * @param {RoleRepository} role
    */
-  constructor(userRepo, userAuth, hashPassword, verifyService, session, refreshToken, userRole, role) {
+  constructor(
+    userRepo, 
+    userAuth, 
+    hashPassword, 
+    verifyService,
+    verifyRepo,
+    session, 
+    refreshToken, 
+    userRole, 
+    role
+  ) {
     this.userRepo = userRepo;
     this.userAuth = userAuth;
     this.hashPassword = hashPassword;
     this.verifyService = verifyService;
+    this.verifyRepo = verifyRepo
+
     this.session = session;
     this.refreshToken = refreshToken;
     this.userRole = userRole;
     this.role = role;
-  };
+  }
 
-  async signUp(data) {
-    const {email, password} = data;
+  /** SIGN UP */
+  async signUp({ fullName, email, password, location }) {
+    // Check duplicate
+    const existingUser = await this.userRepo.getUserByEmail(email);
+    if (existingUser) throw new DuplicateRecordError("Email already exists");
 
-    const userExists = await this.userRepo.getUserByEmail(email);
+    // Hash password
+    const hashedPassword = await this.hashPassword.hash(password);
 
-    if(userExists)
-        throw new DuplicateRecordError("Email already Exists");
+    // Create user
+    const newUser = await this.userRepo.createUser({ email });
 
-    
-    const hashPass = await this.hashPassword.hash(password);
-    
-    const newUser = await this.userRepo.createUser({email});
-    
+    // Create user credential
     await this.userAuth.createUserCredential({
-        userId: newUser.id,
-        type: 'PASSWORD',
-        secretHash: hashPass
+      userId: newUser.id,
+      type: "PASSWORD",
+      secretHash: hashedPassword
     });
 
-    // get role id by name
-    const role = await this.role.getRoleByName("STUDENT");
+    console.log(fullName, location);
     
-    // Assign default role to user
-    await this.userRole.assignRoleToUser({userId: newUser.id, roleId: role.id});
 
-    return newUser;
-  };
+    // Assign default role
+    const roleEntity = await this.role.getRoleByName("STUDENT");
+    await this.userRole.assignRoleToUser({ userId: newUser.id, roleId: roleEntity.id });
 
-  async login (data, sessionData) {
-    const {email, password} = data;
-
-    const userExists = await this.userRepo.getUserByEmail(email);
-    if(!userExists)
-      throw RecordNotFoundError('User not found');
-
-    const userCredential = await this.userAuth.getUserCredentialByUserId(userExists.id);
-
-    // Check account lock due to failed attempts
-    if (userCredential.lockedUntil && userCredential.lockedUntil > new Date())
-      throw new InvalidCredentialsError("Account temporarily locked");
-    
-    // Check failed attempts threshold
-    if (userCredential.failedAttempts && userCredential.failedAttempts >= 5) {
-      await this.deps.userAuth.lockUserAccess(userCredential.userId, addSeconds(10));
-      throw new InvalidCredentialsError("Too many failed attempts");
+    // Send email verification
+    try {
+      await this.verifyService.sendAuthVerification(
+        newUser.id,
+        email,
+        "EMAIL_VERIFICATION"
+      );
+    } catch (error) {
+      console.error("Verification email failed:", error.message);
     };
+
+    return {
+      success: true,
+      user: {fullName, user: newUser.email},
+      message: "Registration successful. Please verify your email."
+    };
+  }
+
+  /** LOGIN */
+  async login({ email, password }, sessionData) {
+    const user = await this.userRepo.getUserByEmail(email);
+    if (!user) throw new InvalidCredentialsError("Invalid email or password");
+
+    // if (!user.isEmailVerified)
+    //   throw new InvalidCredentialsError("Please verify your email first");
+
+    const credential = await this.userAuth.getUserCredentialByUserId(user.id);
+
+    // Check if account is locked
+    if (credential.lockedUntil && credential.lockedUntil > new Date()) {
+      throw new InvalidCredentialsError("Account temporarily locked");
+    }
+
+    // Check failed attempts
+    if (credential.failedAttempts >= 5) {
+      await this.userAuth.lockUserAccess(user.id, new Date(Date.now() + 10 * 1000));
+      throw new InvalidCredentialsError("Too many failed attempts");
+    }
 
     // Verify password
-    const isPasswordCorrect = await this.hashPassword.verify(password, userCredential.secretHash);
-
+    const isPasswordCorrect = await this.hashPassword.verify(password, credential.secretHash);
     if (!isPasswordCorrect) {
-      await this.deps.userAuth.incrementFailedAttempts(userCredential.userId);
-      throw new InvalidCredentialsError('Password is Incorrect');
-    };
+      await this.userAuth.incrementFailedAttempts(user.id);
+      throw new InvalidCredentialsError("Invalid email or password");
+    }
 
-    // Reset failed attempts after successful login
-    await this.userAuth.resetFailedAttempts(userCredential.userId);
+    // Reset failed attempts on success
+    await this.userAuth.resetFailedAttempts(user.id);
+    await this.userAuth.updateUserLastLogin(user.id);
 
-    // Update last login timestamp
-    await this.userAuth.updateUserLastLogin(userCredential.userId);
-
-    // Create user session
-    const userSession = await this.session.createSession(userCredential.userId, sessionData);
+    // Create session
+    const userSession = await this.session.createSession(user.id, sessionData);
 
     // Create refresh token
     const refreshToken = await this.refreshToken.createRefreshToken(userSession.id);
 
     // Generate access token
-    const accessToken = await generateAccessToken(userCredential.userId, userSession.id);
+    const accessToken = await generateAccessToken(user.id, userSession.id);
+
+    return { accessToken, refreshToken };
+  };
+
+  /** VERIFY EMAIL */
+  async verifyUserEmail(token, sessionData) {
+    const verifyResult = await this.verifyService.verifyEmailVerificationTokens(token);
+
+    const userId = verifyResult.userId;
+
+    //Auto-login after verification
+    const userSession = await this.session.createSession(
+      userId,
+      sessionData
+    );
+
+    const refreshToken =
+      await this.refreshToken.createRefreshToken(userSession.id);
+
+    const accessToken = await generateAccessToken(
+      userId,
+      userSession.id
+    );
 
     return {
-      refreshToken,
+      message: "Email verified successfully",
       accessToken,
+      refreshToken
+    };
+  }
+
+  async resendEmailVerification(email) {
+    //Find user by email
+    const user = await this.userRepo.getUserByEmail(email);
+    if (!user) throw new RecordNotFoundError("User not found");
+
+    //Check if already verified, before resending verification token
+    if (user.isEmailVerified) {
+      return { message: "Email already verified" };
+    }
+
+    await this.verifyRepo.deleteVerificationTokenByUser(user.id, 'EMAIL_VERIFICATION');
+    // If email not verified, send verification email
+    try {
+      await this.verifyService.sendAuthVerification(
+        user.id,
+        email,
+        "EMAIL_VERIFICATION"
+      );
+      return {message: "Verification email sent successfully"};
+    } catch (error) {
+      console.error("Failed to send verification email:", error.message);
     };
   };
 
-
+  /** FORGOT PASSWORD */
   async forgotPassword(email) {
     const user = await this.userRepo.getUserByEmail(email);
 
-    // Send password reset verification
-    await this.verifyService.sendAuthVerification(
-      user.id,
-      email,
-      "PASSWORD_RESET"
-    );
-
-    return { success: true};
+    if (user && user.isEmailVerified) {
+      await this.verifyService.sendAuthVerification(
+        user.id,
+        email,
+        "PASSWORD_RESET"
+      );
+    };
+    return {
+      message: "If the account exists and is verified, a password reset link has been sent."
+    };
   };
 
-  async resetPassword(rawToken, newPassword){
-    // verify Token
+  /** RESET PASSWORD */
+  async resetPassword(rawToken, newPassword) {
     const verify = await this.verifyService.verifyPasswordResetToken(rawToken);
-    
-    //Hash user new password
-    const hashPass = await this.hashPassword.hash(newPassword);
 
-    //Update user password
-    await this.userAuth.updateUserPassword(verify.userId, hashPass);
+    // Hash new password
+    const hashedPassword = await this.hashPassword.hash(newPassword);
 
-    //Deleted Token after successful password update(this prevent replay attack)
-    await this.verifyToken.deleteToken(verify.token.id);
+    // Update user password
+    await this.userAuth.updateUserPassword(verify.userId, hashedPassword);
 
-    //Revoke refreshToken
-    await this.refreshToken.refreshTokenRepo.revokeAllRefreshToken(verify.userId);
-
-    //Revoke session
+    // Revoke all sessions
     await this.session.sessionRepo.revokeAllUsersSessions(verify.userId);
 
-    return {success: true};
+    return { message: "Password reset successfully" };
   };
 
-  async logout (userId, sessionId){
-    await this.refreshToken.refreshTokenRepo.revokeBySessionId(sessionId);
+  async resendPasswordResetVerification(email) {
+    //Find user by email
+    const user = await this.userRepo.getUserByEmail(email);
+    if (!user) throw new RecordNotFoundError("User not found");
+
+    //Check if already verified, before resending verification token
+      await this.verifyRepo.deleteVerificationTokenByUser(user.id, 'PASSWORD_RESET');
+
+    // send resetpassword verification
+     try {
+        await this.verifyService.sendAuthVerification(user.id, email, "PASSWORD_RESET");
+      } catch (error) {
+        console.error("Failed to send verification email:", error.message);
+      };
+
+    return { message: "Password Reset verification email sent successfully" };
+  };
+
+  /** LOGOUT */
+  async logout(userId, sessionId) {
+    await this.refreshToken.refreshTokenRepo.revokeRefreshTokenBySessionId(sessionId)
+
     await this.session.sessionRepo.revokeSession(sessionId);
+    
     await this.userAuth.resetFailedAttempts(userId);
 
     return { message: "Logged out successfully" };

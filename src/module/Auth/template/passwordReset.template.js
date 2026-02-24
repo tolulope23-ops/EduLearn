@@ -99,7 +99,7 @@ export function passwordResetTemplate(resetPasswordLink){
                   </a>
 
                   <p style="margin-top: 24px">
-                    This link will expire in <strong>15 minutes</strong> for
+                    This link will expire in <strong> 2 minutes</strong> for
                     security reasons.
                   </p>
 

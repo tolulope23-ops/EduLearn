@@ -1,20 +1,18 @@
-import UserRole from "../models/userRole.model.js";
-import Role from "../models/role.model.js";
-import User from "../models/user.model.js";
-
-import handleSequelizeError from "../../../common/error/sequeliseError.error.js";
+import {UserRole, Role, User} from "../models/index.js";
+import { handleSequelizeError } from "../../../common/error/sequeliseError.error.js";
+import { RecordNotFoundError } from "../../../common/error/domainError.error.js";
 
 export class UserRoleRepository {
 
   // CREATE QUERY OPERATION
   async assignRoleToUser(data) {
     try {
-      const user_role = await UserRole.create(data);
-      return this.mapToUserRoleEntity(user_role);
+      const userRole = await UserRole.create(data);
+      return this.mapToUserRoleEntity(userRole);
     } catch (error) {
       handleSequelizeError(error);
-    };
-  };
+    }
+  }
 
   // READ QUERY OPERATIONS
   async getRolesByUser(userId) {
@@ -41,7 +39,8 @@ export class UserRoleRepository {
           { model: Role, as: "role" },
         ],
       });
-      return roles.map((role) => this.mapToUserRoleEntity(role));
+
+      return roles.map(role => this.mapToUserRoleEntity(role));
     } catch (error) {
       handleSequelizeError(error);
     }
@@ -57,30 +56,35 @@ export class UserRoleRepository {
         ],
       });
 
-      return users.map((user) => this.mapToUserRoleEntity(user));
+      return users.map(user => this.mapToUserRoleEntity(user));
     } catch (error) {
       handleSequelizeError(error);
     }
   }
 
+  // DELETE QUERY OPERATION
   async removeRoleFromUser(userId, roleId) {
     try {
-      await UserRole.destroy({
+      const affectedRows = await UserRole.destroy({
         where: { userId, roleId },
       });
+
+      if (affectedRows === 0) {
+        throw new RecordNotFoundError("User role not found");
+      }
     } catch (error) {
       handleSequelizeError(error);
     }
   }
 
   // HELPER: Map Sequelize instance to domain entity
-  mapToUserRoleEntity(user_role) {
-    if (!user_role) return null;
+  mapToUserRoleEntity(userRole) {
+    if (!userRole) return null;
 
     return {
-      id: user_role.id,
-      userId: user_role.userId,
-      roleId: user_role.roleId,
+      id: userRole.id,
+      userId: userRole.userId,
+      roleId: userRole.roleId,
     };
-  };
-};
+  }
+}

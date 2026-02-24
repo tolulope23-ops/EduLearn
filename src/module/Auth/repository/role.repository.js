@@ -1,5 +1,6 @@
-import  Role  from "../models/role.model.js";
-import handleSequelizeError from "../../../common/error/sequeliseError.error.js";
+import {Role} from "../models/index.js";
+import { handleSequelizeError } from "../../../common/error/sequeliseError.error.js";
+import { RecordNotFoundError } from "../../../common/error/domainError.error.js";
 
 export class RoleRepository {
 
@@ -11,18 +12,23 @@ export class RoleRepository {
     } catch (error) {
       handleSequelizeError(error);
     }
-  };
+  }
 
   // UPDATE QUERY OPERATION
   async updateRole(id, data) {
     try {
-      await Role.update(data, { where: { id } });
+      const [affectedRows] = await Role.update(data, { where: { id } });
+
+      if (affectedRows === 0) {
+        throw new RecordNotFoundError("Role not found");
+      }
+
       const updatedRole = await Role.findByPk(id);
       return this.mapToRoleEntity(updatedRole);
     } catch (error) {
       handleSequelizeError(error);
     }
-  };
+  }
 
   // READ QUERY OPERATIONS
   async getRoleById(id) {
@@ -32,26 +38,25 @@ export class RoleRepository {
     } catch (error) {
       handleSequelizeError(error);
     }
-  };
+  }
 
   async getRoleByName(roleName) {
     try {
       const role = await Role.findOne({ where: { roleName } });
-
       return role ? this.mapToRoleEntity(role) : null;
     } catch (error) {
       handleSequelizeError(error);
     }
-  };
+  }
 
   async getAllRoles() {
     try {
       const roles = await Role.findAll();
-      return roles.map((role) => this.mapToRoleEntity(role));
+      return roles.map(role => this.mapToRoleEntity(role));
     } catch (error) {
       handleSequelizeError(error);
     }
-  };
+  }
 
   // HELPER: Map Sequelize instance to domain entity
   mapToRoleEntity(role) {
@@ -64,5 +69,5 @@ export class RoleRepository {
       createdAt: role.createdAt,
       updatedAt: role.updatedAt,
     };
-  };
-};
+  }
+}

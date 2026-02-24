@@ -1,6 +1,6 @@
 import { UserSessionRepository } from "../../module/Auth/repository/authSession.repository.js";
 import { verifyAccessToken } from "../../module/Auth/utils/verificationToken.utils.js";
-import { InvalidTokenError } from "../error/httpError.error.js";
+import { InvalidTokenError } from "../error/domainError.error.js";
 
 export class UserAuthMiddleware {
     /**

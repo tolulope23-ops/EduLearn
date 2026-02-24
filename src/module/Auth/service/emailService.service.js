@@ -1,38 +1,100 @@
-import nodemailer from 'nodemailer';
-import {MAIL_HOST, MAIL_PASSWORD, MAIL_USER, MAIL_PORT} from '../../../common/config/env.config.js';
-import {verifyEmailTemplate} from '../template/emailVerification.template.js';
-import {passwordResetTemplate} from '../template/passwordReset.template.js'
+import sgMail from "@sendgrid/mail";
+import { SENDGRID_API_KEY, SENDGRID_FROM_EMAIL } from "../../../common/config/env.config.js";
+import { verifyEmailTemplate } from "../template/emailVerification.template.js";
+import { passwordResetTemplate } from "../template/passwordReset.template.js";
 
-export class EmailService{
-
+export class EmailService {
     constructor() {
-        this.transporter = nodemailer.createTransport({
-            host: MAIL_HOST,
-            port: MAIL_PORT,
-            secure: false,
-            auth: {
-                user: MAIL_USER,
-                pass: MAIL_PASSWORD,
-            },
-        });
-    };
+    sgMail.setApiKey(SENDGRID_API_KEY);
+  }
 
-    async sendVerification(to, subject, html) {
-        const mailOptions = {
-            from: MAIL_USER,
-            to,
-            subject,
-            html,
-        };
+  /**
+   * Send an email
+   * @param {string} to - Recipient email
+   * @param {string} subject - Email subject
+   * @param {string} html - HTML content
+   */
 
-    await this.transporter.sendMail(mailOptions);
+  async sendMail(to, subject, html) {
+    try {
+      await sgMail.send({
+        to,
+        from: SENDGRID_FROM_EMAIL,
+        subject,
+        html,
+      });
+    } catch (error) {
+      console.error("Failed to send email:", error.response?.body || error.message);
+      throw error;
+    }
   };
-};
 
-// Export templates
+  /**
+   * Send verification email
+   * @param {string} to
+   * @param {"EMAIL_VERIFICATION"|"PASSWORD_RESET"} type
+   * @param {string} token 
+   */
+  async sendVerification(to, type, token) {
+    let subject, html;
+
+    switch (type) {
+      case "EMAIL_VERIFICATION":
+        subject = "Verify your email";
+        html = verifyEmailTemplate(token);
+        break;
+      case "PASSWORD_RESET":
+        subject = "Reset your password";
+        html = passwordResetTemplate(token);
+        break;
+      default:
+        throw new Error("Unsupported email template type");
+    }
+
+    return this.sendMail(to, subject, html);
+  }
+}
+
+// Export templates (optional)
 export const emailTemplates = {
   EMAIL_VERIFICATION: verifyEmailTemplate,
   PASSWORD_RESET: passwordResetTemplate,
 };
 
 
+// import nodemailer from 'nodemailer';
+// import {MAIL_HOST, MAIL_PASSWORD, MAIL_USER, MAIL_PORT} from '../../../common/config/env.config.js';
+// import {verifyEmailTemplate} from '../template/emailVerification.template.js';
+// import {passwordResetTemplate} from '../template/passwordReset.template.js'
+
+// export class EmailService{
+
+//     constructor() {
+//         this.transporter = nodemailer.createTransport({
+//             host: MAIL_HOST,
+//             port: MAIL_PORT,
+//             secure: false,
+//             auth: {
+//                 user: MAIL_USER,
+//                 pass: MAIL_PASSWORD,
+//             },
+//         });
+//     };
+
+//     async sendVerification(to, subject, html) {
+//         const mailOptions = {
+//             from: MAIL_USER,
+//             to,
+//             subject,
+//             html,
+//         };
+
+//     await this.transporter.sendMail(mailOptions);
+//   };
+// };
+
+// // Export templates
+// export const emailTemplates = {
+//   EMAIL_VERIFICATION: verifyEmailTemplate,
+//   PASSWORD_RESET: passwordResetTemplate,
+// };

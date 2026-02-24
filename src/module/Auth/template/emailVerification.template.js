@@ -141,7 +141,7 @@ export function verifyEmailTemplate(verificationLink){
 
                     <p style="margin-top: 24px">
                     This verification link will expire in
-                    <strong>15 minutes</strong>. If you didn’t create an account,
+                    <strong> 2 minutes</strong>. If you didn’t create an account,
                     you can safely ignore this email.
                     </p>
                 </td>

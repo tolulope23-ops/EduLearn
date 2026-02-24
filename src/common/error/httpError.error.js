@@ -1,44 +1,15 @@
-import { AppError } from "./appError.error.js";
+import { DomainError } from "./appError.error.js";
 
-export class BadRequestError extends AppError {
-  constructor(message = "Bad request") {
-    super(message, 400);
-  }
-};
-
-export class UnauthorizedError extends AppError {
-  constructor(message = "Unauthorized") {
-    super(message, 401);
-  }
-};
-
-export class InvalidTokenError extends Error {
-  constructor(message = "Invalid token") {
+export class HttpError extends Error {
+  constructor(message, statusCode) {
     super(message);
-    this.name = "InvalidTokenError";
-  }
-}
-
-export class ForbiddenError extends AppError {
-  constructor(message = "Forbidden") {
-    super(message, 403);
+    this.statusCode = statusCode;
   }
 };
 
-export class NotFoundError extends AppError {
-  constructor(message = "Resource not found") {
-    super(message, 404);
-  }
-};
-
-export class ConflictError extends AppError {
-  constructor(message = "Conflict") {
-    super(message, 409);
-  }
-};
-
-export class InternalServerError extends AppError {
-  constructor(message = "Internal server error") {
-    super(message, 500, false);
+export class BadRequestError extends DomainError {
+  constructor(message = "Bad request") {
+    super(message);
+    this.statusCode = 400; // optional, can be used in your error handler
   }
 };

@@ -4,10 +4,8 @@ export const PORT = process.env.PORT;
 
 
 //Email Configuration
-export const MAIL_HOST = process.env.MAIL_HOST;
-export const MAIL_PASSWORD = process.env.MAIL_PASSWORD;
-export const MAIL_PORT = Number(process.env.MAIL_PORT);
-export const MAIL_USER = process.env.MAIL_USER;
+export const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+export const SENDGRID_FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL
 
 
 //Local Development

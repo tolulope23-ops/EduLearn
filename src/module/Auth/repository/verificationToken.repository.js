@@ -1,8 +1,11 @@
-import VerificationToken from "../models/verificationToken.model.js";
-import handleSequelizeError from "../../../common/error/sequeliseError.error.js";
+import {VerificationToken} from "../models/index.js";
+import { handleSequelizeError } from "../../../common/error/sequeliseError.error.js";
+import { RecordNotFoundError } from "../../../common/error/domainError.error.js";
+import { Op } from "sequelize";
 
 export class UserAuthVerificationRepository {
 
+  // CREATE QUERY OPERATION
   async createVerificationToken(data) {
     try {
       const verify = await VerificationToken.create(data);
@@ -10,46 +13,68 @@ export class UserAuthVerificationRepository {
     } catch (error) {
       handleSequelizeError(error);
     }
-  };
+  }
 
-  async findValidToken(tokenHash, type) {
+  // FIND ACTIVE / VALID TOKEN
+  async findValidVerificationToken(tokenHash, type) {
     try {
       const verify = await VerificationToken.findOne({
         where: {
           tokenHash,
           type,
           usedAt: null, // token not used
-          expiresAt: { [VerificationToken.sequelize.Op.gt]: new Date() }, // not expired
+          expiresAt: { [Op.gt]: new Date() }, // not expired
         },
       });
 
       return verify ? this.mapUserVerificationTokenEntity(verify) : null;
-      
     } catch (error) {
       handleSequelizeError(error);
     }
-  };
+  }
 
-  async markTokenUsed(userId) {
+  // MARK TOKEN AS USED
+  async markVerificationTokenUsed(userId) {
     try {
-      // Update the token first
-      await VerificationToken.update(
+      const [affectedRows] = await VerificationToken.update(
         { usedAt: new Date() },
         { where: { userId } }
       );
 
-      // Fetch the updated token
+      if (affectedRows === 0) {
+        throw new RecordNotFoundError("Verification token not found");
+      }
+
       const updatedToken = await VerificationToken.findOne({ where: { userId } });
       return this.mapUserVerificationTokenEntity(updatedToken);
     } catch (error) {
       handleSequelizeError(error);
     }
-  };
+  }
 
   // DELETE TOKEN
-  async deleteToken(id) {
+  async deleteVerificationToken(id) {
     try {
-      await VerificationToken.destroy({ where: { id } });
+      const affectedRows = await VerificationToken.destroy({ where: { id } });
+      if (affectedRows === 0) {
+        throw new RecordNotFoundError("Verification token not found");
+      }
+    } catch (error) {
+      handleSequelizeError(error);
+    }
+  };
+
+  async deleteVerificationTokenByUser(userId, type) {
+    try {
+      const affectedRows = await VerificationToken.destroy({ 
+        where: {
+          userId: userId,
+          type: type,
+        }
+      });
+       if (affectedRows === 0) {
+        throw new RecordNotFoundError("Verification token not found");
+      }
     } catch (error) {
       handleSequelizeError(error);
     }
@@ -69,5 +94,5 @@ export class UserAuthVerificationRepository {
       createdAt: verification.createdAt,
       updatedAt: verification.updatedAt,
     };
-  };
-};
+  }
+}

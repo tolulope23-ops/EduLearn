@@ -1,40 +1,35 @@
 import {
-  DuplicateRecordError,
-  RecordNotFoundError,
-  InvalidReferenceError,
-  DatabaseError,
-  DatabaseConnectionError,
-} from "./domainError.error.js"
-
-import {
   UniqueConstraintError,
   ForeignKeyConstraintError,
   EmptyResultError,
-  ConnectionError
+  ConnectionError,
+  DatabaseError as SequelizeDatabaseError,
 } from "sequelize";
 
-const handleSequelizeError = (error) => {
+import { DuplicateRecordError, RecordNotFoundError } from "./domainError.error.js";
+import { DomainError } from "./appError.error.js";
+
+export const handleSequelizeError = (error) => {
+
   if (error instanceof UniqueConstraintError) {
-    throw new DuplicateRecordError();
-  };
+    throw new DuplicateRecordError("Duplicate value detected");
+  }
 
   if (error instanceof ForeignKeyConstraintError) {
-    throw new InvalidReferenceError();
-  };
+    throw new DomainError("Invalid reference provided");
+  }
 
   if (error instanceof EmptyResultError) {
     throw new RecordNotFoundError();
-  };
+  }
 
   if (error instanceof ConnectionError) {
-    throw new DatabaseConnectionError();
-  };
+    throw new DomainError("Database connection failed");
+  }
 
-  if (error instanceof DatabaseError) {
-    throw new DatabaseError();
-  };
+  if (error instanceof SequelizeDatabaseError) {
+    throw new DomainError("Database operation failed");
+  }
 
   throw error;
 };
-
-export default handleSequelizeError;

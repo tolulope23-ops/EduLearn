@@ -2,7 +2,7 @@ import { InvalidTokenError } from "../../../common/error/domainError.error.js";
 import { UserSessionRepository } from "../repository/authSession.repository.js";
 import { UserRefreshTokenRepository } from "../repository/refreshToken.repository.js";
 import { addDays } from "../utils/passwordHashing.utils.js";
-import { generateAccessToken } from "../utils/verificationToken.utils.js";
+import { createToken, generateAccessToken } from "../utils/verificationToken.utils.js";
 import { UserSessionService } from "./session.service.js";
 import crypto from 'crypto';
 
@@ -23,7 +23,7 @@ export class UserRefreshTokenService{
     async createRefreshToken(sessionId) {
         const { rawToken, hashToken } = await createToken();
 
-        await this.deps.refreshToken.createToken({
+        await this.refreshTokenRepo.createRefreshToken({
             sessionId: sessionId,
             tokenHash: hashToken,
             expiresAt: addDays(7),
@@ -40,14 +40,13 @@ export class UserRefreshTokenService{
         //Check token in DB
         const storedToken = await this.refreshTokenRepo.findValidRefreshToken(hashedToken);
 
-        if (!storedToken)
+       if (!storedToken) 
             throw new InvalidTokenError("Invalid Refresh Token");
-        
 
         //Get session
         const session = await this.sessionRepo.getSessionById(storedToken.sessionId);
         if (!session) 
-            throw new InvalidTokenError();
+             throw new InvalidTokenError("Associated session not found");
 
         return {
             refreshToken: storedToken,
@@ -57,22 +56,20 @@ export class UserRefreshTokenService{
     };
 
 
-    // Rotate refresh token
+    // Rotate an existing refresh token: revoke old, issue new, generate access token
     async rotateRefreshToken(oldToken) {
-        const { userId, refreshToken: oldRawToken, sessionId } = await this.verifyRefreshToken(oldToken);
+        
+        const { userId, refreshToken: oldStoredToken, sessionId } = await this.verifyRefreshToken(oldToken);
 
-        //Revokes old token
-        await this.refreshTokenRepo.revokeToken(oldRawToken.id);
+        // Revoke old token
+        await this.refreshTokenRepo.revokeRefreshToken(oldStoredToken.id);
 
-        //Create new refresh token
+        // Create new refresh token
         const { rawToken } = await this.createRefreshToken(sessionId);
 
-        //Generate new access token
-        const accessToken = generateAccessToken(userId, sessionId);
+        // Generate new access token
+        const accessToken = await generateAccessToken(userId, sessionId);
 
-        return {
-            refreshToken: rawToken,
-            accessToken,
-        };
-    };
+        return { refreshToken: rawToken, accessToken };
+    }
 };

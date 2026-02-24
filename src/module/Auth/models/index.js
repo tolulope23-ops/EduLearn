@@ -8,12 +8,14 @@ import Role from './role.model.js';
 import Permission from './permission.model.js';
 import UserRole from './userRole.model.js';
 import RolePermission from './rolePermission.model.js';
+import UserProfile from './userProfile.model.js';
 
 // Import associations
 import './associations.js';
 
 export {
   User,
+  UserProfile,
   AuthCredential,
   RefreshToken,
   AuthSession,

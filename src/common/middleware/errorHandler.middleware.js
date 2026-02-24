@@ -1,20 +1,19 @@
-import { AppError } from "../error/appError.error.js";
+import { mapToHttpError } from "../error/httpErrorMapper.error.js";
 
 const errorHandler = (err, req, res, next) => {
-    if (err instanceof AppError) {
-        return res.status(err.statusCode).json({
-            status: "error",
-            message: err.message,
-            stack: process.env.NODE_ENV === "development" ? err.stack : undefined
-        });
-    }
-    
-    console.error("UNEXPECTED ERROR:", err);
 
-    return res.status(500).json({
-        status: "error",
-        message: "Something went wrong",
-    });
+  const httpError = mapToHttpError(err);
+
+  return res.status(httpError.statusCode).json({
+    status: "error",
+    message: httpError.message,
+    ...(process.env.NODE_ENV === "development" && {
+      originalError: err.message,
+      stack: err.stack,
+      path: req.originalUrl,
+      method: req.method,
+    }),
+  });
 };
 
 export default errorHandler;

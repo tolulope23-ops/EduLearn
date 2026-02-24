@@ -1,5 +1,6 @@
-import Permission from "../models/permission.model.js";
-import handleSequelizeError from "../../../common/error/sequeliseError.error.js";
+import {Permission} from "../models/index.js";
+import { handleSequelizeError } from "../../../common/error/sequeliseError.error.js";
+import { RecordNotFoundError } from "../../../common/error/domainError.error.js";
 
 export class UserPermissionRepository {
 
@@ -11,21 +12,23 @@ export class UserPermissionRepository {
     } catch (error) {
       handleSequelizeError(error);
     }
-  };
+  }
 
   // UPDATE QUERY OPERATION
   async updatePermission(id, data) {
     try {
-      // Update permission
-      await Permission.update(data, { where: { id } });
+      const [affectedRows] = await Permission.update(data, { where: { id } });
 
-      // Fetch the updated row (works in all DBs)
+      if (affectedRows === 0) {
+        throw new RecordNotFoundError("Permission not found");
+      }
+
       const updatedPermission = await Permission.findByPk(id);
       return this.mapToPermissionEntity(updatedPermission);
     } catch (error) {
       handleSequelizeError(error);
     }
-  };
+  }
 
   // READ QUERY OPERATIONS
   async getPermissionById(id) {
@@ -35,7 +38,7 @@ export class UserPermissionRepository {
     } catch (error) {
       handleSequelizeError(error);
     }
-  };
+  }
 
   async getPermissionByName(name) {
     try {
@@ -44,25 +47,29 @@ export class UserPermissionRepository {
     } catch (error) {
       handleSequelizeError(error);
     }
-  };
+  }
 
   async getAllPermissions() {
     try {
       const permissions = await Permission.findAll();
-      return permissions.map((permission) => this.mapToPermissionEntity(permission));
+      return permissions.map(permission => this.mapToPermissionEntity(permission));
     } catch (error) {
       handleSequelizeError(error);
     }
-  };
+  }
 
   // DELETE QUERY OPERATION
   async deletePermission(id) {
     try {
-      await Permission.destroy({ where: { id } });
+      const affectedRows = await Permission.destroy({ where: { id } });
+
+      if (affectedRows === 0) {
+        throw new RecordNotFoundError("Permission not found");
+      }
     } catch (error) {
       handleSequelizeError(error);
     }
-  };
+  }
 
   // HELPER: Map Sequelize instance to domain entity
   mapToPermissionEntity(permission) {
@@ -75,7 +82,5 @@ export class UserPermissionRepository {
       createdAt: permission.createdAt,
       updatedAt: permission.updatedAt,
     };
-  };
+  }
 }
-
-module.exports = PermissionRepository;

@@ -1,5 +1,6 @@
-import AuthSession from "../models/authSession.model.js";
-import handleSequelizeError from "../../../common/error/sequeliseError.error.js";
+import {AuthSession} from "../models/index.js";
+import { handleSequelizeError } from "../../../common/error/sequeliseError.error.js";
+import { RecordNotFoundError } from "../../../common/error/domainError.error.js";
 
 export class UserSessionRepository {
 
@@ -10,8 +11,8 @@ export class UserSessionRepository {
       return this.mapToAuthSession(session);
     } catch (error) {
       handleSequelizeError(error);
-    };
-  };
+    }
+  }
 
   // READ QUERY OPERATION
   async getSessionById(sessionId) {
@@ -26,39 +27,42 @@ export class UserSessionRepository {
       return session ? this.mapToAuthSession(session) : null;
     } catch (error) {
       handleSequelizeError(error);
-    };
-  };
+    }
+  }
 
   async getActiveSessions(userId) {
     try {
       const sessions = await AuthSession.findAll({
         where: {
           userId,
-          revokedAt: null,
+          revokedAt: null, // only active sessions
         },
       });
 
-      return sessions.map((session) => this.mapToAuthSession(session));
+      return sessions.map(session => this.mapToAuthSession(session));
     } catch (error) {
       handleSequelizeError(error);
     }
   }
 
+  // UPDATE QUERY OPERATIONS
   async revokeSession(sessionId) {
     try {
-      // Update the session
-      await AuthSession.update(
+      const [affectedRows] = await AuthSession.update(
         { revokedAt: new Date() },
         { where: { id: sessionId } }
       );
 
-      // Fetch updated session
+      if (affectedRows === 0) {
+        throw new RecordNotFoundError("Session not found");
+      }
+
       const updatedSession = await AuthSession.findByPk(sessionId);
       return this.mapToAuthSession(updatedSession);
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
 
   async revokeAllUsersSessions(userId) {
     try {
@@ -90,4 +94,4 @@ export class UserSessionRepository {
       updatedAt: session.updatedAt,
     };
   }
-};
+}

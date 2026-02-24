@@ -1,28 +1,27 @@
-import Role from '../models/role.model.js';
-import RolePermission from '../models/rolePermission.model.js';
-import Permission from '../models/permission.model.js';
-import handleSequelizeError from '../../../common/error/sequeliseError.error.js';
+import {Role, RolePermission, Permission} from '../models/index.js';
+import { handleSequelizeError } from '../../../common/error/sequeliseError.error.js';
+import { RecordNotFoundError } from '../../../common/error/domainError.error.js';
 
 export class UserRolePermissionRepository {
-  
+
   // CREATE: assign a permission to a role
   async assignPermissionToRole(roleId, permissionId) {
     try {
-      const role_permission = await RolePermission.create({
+      const rolePermission = await RolePermission.create({
         roleId,
         permissionId,
       });
 
-      return this.mapToRolePermissionEntity(role_permission);
+      return this.mapToRolePermissionEntity(rolePermission);
     } catch (error) {
       handleSequelizeError(error);
     }
-  };
+  }
 
   // READ: get all permissions for a role
   async getPermissionsByRole(roleId) {
     try {
-      const role_permissions = await RolePermission.findAll({
+      const rolePermissions = await RolePermission.findAll({
         where: { roleId },
         include: [
           { model: Role, as: "role" },
@@ -30,31 +29,35 @@ export class UserRolePermissionRepository {
         ],
       });
 
-      return role_permissions.map((rp) => this.mapToRolePermissionEntity(rp));
+      return rolePermissions.map(rp => this.mapToRolePermissionEntity(rp));
     } catch (error) {
       handleSequelizeError(error);
     }
-  };
+  }
 
   // DELETE: remove a permission from a role
   async removePermissionFromRole(roleId, permissionId) {
     try {
-      await RolePermission.destroy({
+      const affectedRows = await RolePermission.destroy({
         where: { roleId, permissionId },
       });
+
+      if (affectedRows === 0) {
+        throw new RecordNotFoundError("Role permission not found");
+      }
     } catch (error) {
       handleSequelizeError(error);
     }
-  };
+  }
 
   // HELPER: map Sequelize instance to plain object
-  mapToRolePermissionEntity(role_permission) {
-    if (!role_permission) return null;
+  mapToRolePermissionEntity(rolePermission) {
+    if (!rolePermission) return null;
 
     return {
-      id: role_permission.id,
-      roleId: role_permission.roleId,
-      permissionId: role_permission.permissionId,
+      id: rolePermission.id,
+      roleId: rolePermission.roleId,
+      permissionId: rolePermission.permissionId,
     };
-  };
-};
+  }
+}

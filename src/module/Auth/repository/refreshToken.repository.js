@@ -1,18 +1,20 @@
-import AuthSession from "../models/authSession.model.js";
-import RefreshToken from "../models/refreshToken.model.js";
-import handleSequelizeError from "../../../common/error/sequeliseError.error.js";
+import {AuthSession, RefreshToken} from '../models/index.js'
+// import AuthSe
+import { handleSequelizeError } from "../../../common/error/sequeliseError.error.js";
+import { RecordNotFoundError } from "../../../common/error/domainError.error.js";
+import { Op } from "sequelize";
 
 export class UserRefreshTokenRepository {
 
   // CREATE QUERY OPERATION
-  async createToken(data) {
+  async createRefreshToken(data) {
     try {
       const token = await RefreshToken.create(data);
       return this.mapToRefreshTokenEntity(token);
     } catch (error) {
       handleSequelizeError(error);
     }
-  };
+  }
 
   // READ QUERY OPERATION
   async findValidRefreshToken(tokenHash) {
@@ -20,7 +22,7 @@ export class UserRefreshTokenRepository {
       const token = await RefreshToken.findOne({
         where: {
           tokenHash,
-          expiresAt: { [RefreshToken.sequelize.Op.gt]: new Date() },
+          expiresAt: { [Op.gt]: new Date() },
           revokedAt: null,
         },
         include: [
@@ -33,62 +35,63 @@ export class UserRefreshTokenRepository {
       });
 
       return token ? this.mapToRefreshTokenEntity(token) : null;
-
     } catch (error) {
       handleSequelizeError(error);
     }
-  };
+  }
 
-  // REVOKE TOKEN
-  async revokeToken(id) {
+  // REVOKE TOKEN BY ID
+  async revokeRefreshToken(id) {
     try {
-      // Update token
-      await RefreshToken.update(
+      const [affectedRows] = await RefreshToken.update(
         { revokedAt: new Date() },
         { where: { id } }
       );
 
-      // Fetch updated token
+      if (affectedRows === 0) {
+        throw new RecordNotFoundError("Refresh token not found");
+      }
+
       const token = await RefreshToken.findByPk(id);
-
       return this.mapToRefreshTokenEntity(token);
+    } catch (error) {
+      handleSequelizeError(error);
+    }
+  }
 
+  // REVOKE ALL TOKENS FOR A SESSION
+  async revokeRefreshTokenBySessionId(sessionId) {
+    try {
+      await RefreshToken.update(
+        { revokedAt: new Date() },
+        {
+          where: {
+            sessionId,
+            revokedAt: null,
+          },
+        });
+      return true;
     } catch (error) {
       handleSequelizeError(error);
     }
   };
 
-  async revokeBySessionId(sessionId) {
-  try {
-    await RefreshToken.update({ revokedAt: new Date() },
-      {
-        where: {
-          sessionId,
-          revokedAt: null
+  // REVOKE ALL TOKENS FOR A USER
+  async revokeAllRefreshToken(id) {
+    try {
+      await RefreshToken.update(
+        { revokedAt: new Date() },
+        {
+          where: {
+            id,
+            revokedAt: null,
+          },
         }
-      });
-
-    return true;
-
-  } catch (error) {
-    handleSequelizeError(error);
+      );
+    } catch (error) {
+      handleSequelizeError(error);
+    }
   };
-};
-
- async revokeAllRefreshToken(userId) {
-  try {
-    await RefreshToken.update({ revokedAt: new Date() },
-      {
-        where: {
-          userId,
-          revokedAt: null
-        }
-      }
-    );
-  } catch (error) {
-    handleSequelizeError(error);
-  };
-};
 
   // HELPER: Map Sequelize instance to domain entity
   mapToRefreshTokenEntity(token) {
@@ -104,4 +107,4 @@ export class UserRefreshTokenRepository {
       updatedAt: token.updatedAt,
     };
   }
-};
+}

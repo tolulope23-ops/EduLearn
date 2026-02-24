@@ -12,7 +12,6 @@ import { UserRefreshTokenService } from "./service/refreshToken.service.js";
 import { UserRefreshTokenRepository } from "./repository/refreshToken.repository.js";
 import { UserAuthMiddleware } from "../../common/middleware/auth.middleware.js";
 import { UserAuthController } from "./controller/auth.controller.js";
-import { RefreshTokenController } from "./controller/refreshToken.controller.js";
 import { RoleRepository } from "./repository/role.repository.js";
 import { UserRoleRepository } from "./repository/userRole.repository.js";
 
@@ -49,6 +48,7 @@ export const authService = new UserAuthService(
   userAuthRepoInstance,
   passwordHash,
   verificationService,
+  userVerificationRepoInstance,
   sessionService,
   refreshTokenService,
   userRole,
@@ -57,5 +57,4 @@ export const authService = new UserAuthService(
 
 export const authMiddleware = new UserAuthMiddleware(sessionRepoInstance);
 
-export const authController = new UserAuthController(authService);
-export const refreshTokenController = new RefreshTokenController(refreshTokenService);
+export const authController = new UserAuthController(authService, verificationService, refreshTokenService);
