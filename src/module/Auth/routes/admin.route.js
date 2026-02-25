@@ -18,7 +18,7 @@ const runCommand = (command) => {
 // ------------------ ROUTES ------------------
 
 // Run all migrations
-router.post('rae/migrate', async (req, res) => {
+router.post('/rae/migrate', async (req, res) => {
   try {
     const output = await runCommand('npx sequelize-cli db:migrate');
     res.json({ status: 'Migrations completed', output });
@@ -28,7 +28,7 @@ router.post('rae/migrate', async (req, res) => {
 });
 
 // Undo last migration
-router.post('rae/migrate/undo', async (req, res) => {
+router.post('/rae/migrate/undo', async (req, res) => {
   try {
     const output = await runCommand('npx sequelize-cli db:migrate:undo');
     res.json({ status: 'Last migration undone', output });
@@ -38,7 +38,7 @@ router.post('rae/migrate/undo', async (req, res) => {
 });
 
 // Undo all migrations
-router.post('rae/migrate/undo-all', async (req, res) => {
+router.post('/rae/migrate/undo-all', async (req, res) => {
   try {
     const output = await runCommand('npx sequelize-cli db:migrate:undo:all');
     res.json({ status: 'All migrations undone', output });
@@ -48,7 +48,7 @@ router.post('rae/migrate/undo-all', async (req, res) => {
 });
 
 // Run all seeders
-router.post('rae/seed', async (req, res) => {
+router.post('/rae/seed', async (req, res) => {
   try {
     const output = await runCommand('npx sequelize-cli db:seed:all');
     res.json({ status: 'Seeders executed', output });
