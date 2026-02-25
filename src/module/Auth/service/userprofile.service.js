@@ -12,7 +12,6 @@ export class UserProfileService {
     this.classLevelRepo = new ClassLevelRepository();
   }
 
-  /** CREATE USER PROFILE AFTER EMAIL VERIFICATION */
   async createUserProfile(userId, profileData) {
     // Validate classLevelId exists
     const classLevel = await this.classLevelRepo.getClassLevelById(profileData.classLevelId);
@@ -30,7 +29,7 @@ export class UserProfileService {
     };
 
     return await this.userProfileRepo.createUserProfile(data);
-  }
+  };
 
   /** GET PROFILE BY USER ID */
   async getProfileByUserId(userId) {
