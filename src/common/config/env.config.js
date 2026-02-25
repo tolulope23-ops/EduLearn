@@ -1,6 +1,6 @@
 import 'dotenv/config';  //importing .env
 
-export const PORT = process.env.PORT;
+export const PORT = process.env.PORT || 4000;
 
 
 //Email Configuration
