@@ -4,25 +4,29 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon src/index.js",
-    "dev": "node src/index.js",
-    "lint": "eslint src ",
-    "lint:fix": "eslint src --fix",
-    "test:e2e": "playwright test",
-    "test:e2e:headed": "playwright test --headed"
+   "start": "node src/index.js",
+   "prestart": "npx sequelize-cli db:migrate",
+   "seed": "npx sequelize-cli db:seed:all",
+   "dev": "nodemon src/index.js",
+   "lint": "eslint src"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@sendgrid/mail": "^8.1.6",
     "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
     "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.17.1",
+    "nodemailer": "^8.0.1",
     "sequelize": "^6.37.7",
+    "sequelize-cli": "^6.6.5",
     "zod": "^4.3.6"
   },
   "devDependencies": {
