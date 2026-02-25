@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 
 import errorHandler from './common/middleware/errorHandler.middleware.js';
 import authRoutes from './module/Auth/routes/auth.route.js';
+import adminRoutes from './module/Auth/routes/admin.route.js';
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.use('/api/v1/auth', authRoutes);
+app.use('/admin', adminRoutes);
 
 app.get('/', (req, res) => {
   res.send('App is healthy');
