@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('user_profiles', {
+    await queryInterface.createTable('student_profiles', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
@@ -15,7 +15,7 @@ module.exports = {
         allowNull: false,
         unique: true,
         references: {
-          model: 'users', // name of the table
+          model: 'users',
           key: 'id'
         },
         onUpdate: 'CASCADE',
@@ -46,16 +46,11 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: true,
         references: {
-          model: 'class_levels', // name of the table
+          model: 'class_levels',
           key: 'id'
         },
         onUpdate: 'CASCADE',
-        onDelete: 'RESTRICT'
-      },
-
-      dateOfBirth: {
-        type: Sequelize.DATE,
-        allowNull: true
+        onDelete: 'SET NULL'
       },
 
       createdAt: {
@@ -67,12 +62,12 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
       }
     });
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('user_profiles');
+    await queryInterface.dropTable('student_profiles');
   }
 };

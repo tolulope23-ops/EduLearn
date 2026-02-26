@@ -1,13 +1,13 @@
-import {UserProfile} from '../models/index.js';
+import { StudentProfile } from '../models/index.js';
 import { handleSequelizeError } from '../../../common/error/sequeliseError.error.js';
 import { RecordNotFoundError } from '../../../common/error/domainError.error.js';
 
-export class UserProfileRepository {
+export class StudentProfileRepository {
 
   // CREATE QUERY OPERATION
-  async createUserProfile(data) {
+  async createStudentProfile(data) {
     try {
-      const profile = await UserProfile.create(data);
+      const profile = await StudentProfile.create(data);
       return this.mapToUserProfileEntity(profile);
     } catch (error) {
       handleSequelizeError(error);
@@ -17,45 +17,45 @@ export class UserProfileRepository {
   // READ QUERY OPERATIONS
   async getProfileByUserId(userId) {
     try {
-      const profile = await UserProfile.findOne({ where: { userId } });
+      const profile = await StudentProfile.findOne({ where: { userId } });
       return profile ? this.mapToUserProfileEntity(profile) : null;
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
 
-  async getProfileById(id) {
+  async getProfileByStudentId(id) {
     try {
-      const profile = await UserProfile.findByPk(id);
+      const profile = await StudentProfile.findByPk(id);
       return profile ? this.mapToUserProfileEntity(profile) : null;
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
 
   // UPDATE QUERY OPERATION
-  async updateUserProfile(userId, updateData) {
+  async updateStudentProfile(userId, updateData) {
     try {
       const [affectedRows] = await UserProfile.update(updateData, { where: { userId } });
 
       if (affectedRows === 0) {
-        throw new RecordNotFoundError("User profile not found");
+        throw new RecordNotFoundError("Student profile not found");
       }
 
-      const updatedProfile = await this.getProfileByUserId(userId);
+      const updatedProfile = await this.getProfileByUserId(id);
       return updatedProfile;
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
 
   // DELETE QUERY OPERATION
-  async deleteUserProfile(userId) {
+  async deleteStudentProfile(userId) {
     try {
-      const affectedRows = await UserProfile.destroy({ where: { userId } });
+      const affectedRows = await StudentProfile.destroy({ where: { userId } });
 
       if (affectedRows === 0) {
-        throw new RecordNotFoundError("User profile not found");
+        throw new RecordNotFoundError("Student profile not found");
       }
 
       return true;
@@ -79,5 +79,5 @@ export class UserProfileRepository {
       createdAt: profile.createdAt,
       updatedAt: profile.updatedAt,
     };
-  }
+  };
 }

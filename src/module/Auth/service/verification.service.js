@@ -39,7 +39,6 @@ export class UserAuthVerificationService {
   /**
    * Send email verification or password reset
    */
-
   async sendAuthVerification(userId, email, type) {
     const rawToken = await this.createVerificationToken(userId, type);
     console.log("token1", rawToken);

@@ -135,9 +135,8 @@ export function verifyEmailTemplate(verificationLink){
                     Click the button below to verify your email:
                     </p>
 
-                    <a href="${verificationLink}" class="verify-button">
-                    Verify Email
-                    </a>
+                   <a href="${verificationLink}" style="display: inline-block; padding: 14px 28px; background-color: #2563eb; color: #ffffff; text-decoration: none; 
+                   border-radius: 6px; font-weight: bold; text-align: center;">Verify Email</a>
 
                     <p style="margin-top: 24px">
                     This verification link will expire in

@@ -1,7 +1,7 @@
 import sequelize from "../../../common/database/connection.js";
 import { DataTypes } from "sequelize";
 
-const UserProfile = sequelize.define("UserProfile", {
+const StudentProfile = sequelize.define("StudentProfile", {
   id: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,
@@ -41,7 +41,7 @@ const UserProfile = sequelize.define("UserProfile", {
 
 }, {
   timestamps: true,
-  tableName: "user_profiles",
+  tableName: "student_profiles",
 });
 
-export default UserProfile;
+export default StudentProfile;

@@ -8,6 +8,7 @@ import { PasswordHasher } from "../utils/passwordHashing.utils.js";
 import { generateAccessToken } from "../utils/verificationToken.utils.js";
 import { UserRefreshTokenService } from "./refreshToken.service.js";
 import { UserSessionService } from "./session.service.js";
+import { StudentProfileService } from "./studentProfile.service.js";
 import { UserAuthVerificationService } from "./verification.service.js";
 
 export class UserAuthService {
@@ -21,6 +22,7 @@ export class UserAuthService {
    * @param {UserRefreshTokenService} refreshToken
    * @param {UserRoleRepository} userRole
    * @param {RoleRepository} role
+   * @param {StudentProfileService} studentService
    */
   constructor(
     userRepo, 
@@ -31,7 +33,8 @@ export class UserAuthService {
     session, 
     refreshToken, 
     userRole, 
-    role
+    role,
+    studentService
   ) {
     this.userRepo = userRepo;
     this.userAuth = userAuth;
@@ -43,6 +46,7 @@ export class UserAuthService {
     this.refreshToken = refreshToken;
     this.userRole = userRole;
     this.role = role;
+    this.studentService = studentService
   }
 
   /** SIGN UP */
@@ -64,13 +68,17 @@ export class UserAuthService {
       secretHash: hashedPassword
     });
 
-    console.log(fullName, location);
-    
-
     // Assign default role
     const roleEntity = await this.role.getRoleByName("STUDENT");
     await this.userRole.assignRoleToUser({ userId: newUser.id, roleId: roleEntity.id });
 
+    //Create student profile
+    const profile = await this.studentService.createStudentProfile({
+      userId: newUser.id,
+      fullName,
+      location,
+    });
+    
     // Send email verification
     try {
       await this.verifyService.sendAuthVerification(
@@ -84,7 +92,7 @@ export class UserAuthService {
 
     return {
       success: true,
-      user: {fullName, user: newUser.email},
+      user: {email: newUser.email, name: profile.fullName, profileId: profile.id },
       message: "Registration successful. Please verify your email."
     };
   }

@@ -14,6 +14,10 @@ import { UserAuthMiddleware } from "../../common/middleware/auth.middleware.js";
 import { UserAuthController } from "./controller/auth.controller.js";
 import { RoleRepository } from "./repository/role.repository.js";
 import { UserRoleRepository } from "./repository/userRole.repository.js";
+import { StudentProfileService } from "./service/studentProfile.service.js";
+import { StudentProfileRepository } from "./repository/studentProfile.repository.js";
+import { StudentProfileController } from "./controller/studentProfile.controller.js";
+import { ClassLevelRepository } from "../Academic/repository/classLevel.repository.js";
 
 // Repositories
 const userRepoInstance = new UserRepository();
@@ -27,6 +31,9 @@ const emailInstance = new EmailService();
 
 const sessionRepoInstance = new UserSessionRepository();
 const refreshTokenRepoInstance = new UserRefreshTokenRepository();
+const studentProfileRepoInstance = new StudentProfileRepository();
+const classLevelRepoInstance = new ClassLevelRepository();
+
 
 
 // Services
@@ -43,6 +50,8 @@ export const verificationService = new UserAuthVerificationService(
   userRepoInstance
 );
 
+export const studentServiceInstance = new StudentProfileService(studentProfileRepoInstance, classLevelRepoInstance);
+
 export const authService = new UserAuthService(
   userRepoInstance,
   userAuthRepoInstance,
@@ -52,9 +61,11 @@ export const authService = new UserAuthService(
   sessionService,
   refreshTokenService,
   userRole,
-  roleRep
+  roleRep,
+  studentServiceInstance
 );
 
 export const authMiddleware = new UserAuthMiddleware(sessionRepoInstance);
 
 export const authController = new UserAuthController(authService, verificationService, refreshTokenService);
+export const studentProfileController = new StudentProfileController(studentServiceInstance);

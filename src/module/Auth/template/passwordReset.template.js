@@ -94,10 +94,9 @@ export function passwordResetTemplate(resetPasswordLink){
                     below to create a new password.
                   </p>
 
-                  <a href="${resetPasswordLink}" class="verify-button">
-                    Reset Password
-                  </a>
-
+                  <a href="${resetPasswordLink}"style="display: inline-block; padding: 14px 28px; background-color: #2563eb; 
+                  color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; text-align: center;">Reset Password</a>
+                  
                   <p style="margin-top: 24px">
                     This link will expire in <strong> 2 minutes</strong> for
                     security reasons.
