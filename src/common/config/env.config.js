@@ -11,3 +11,8 @@ export const SENDGRID_FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL
 //Local Development
 export const FRONTEND_URL = process.env.FRONTEND_URL;
 export const JWT_SECRET = process.env.JWT_SECRET;
+
+
+export const allowedOrigins = process.env.ALLOWED_ORIGINS
+?.split(",")
+  .map(origin => origin.trim()) || [];

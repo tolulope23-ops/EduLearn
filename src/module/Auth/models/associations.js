@@ -1,5 +1,5 @@
 import User from './user.model.js';
-import UserProfile from './userProfile.model.js';
+import StudentProfile from './studentProfile.model.js';
 import AuthCredential from './authCredential.model.js';
 import RefreshToken from './refreshToken.model.js';
 import AuthSession from './authSession.model.js';
@@ -22,13 +22,13 @@ AuthSession.belongsTo(User, { foreignKey: 'userId' });
 User.hasMany(VerificationToken, { foreignKey: 'userId' });
 VerificationToken.belongsTo(User, { foreignKey: 'userId' });
 
-// User ↔ UserProfile (new)
-User.hasOne(UserProfile, { foreignKey: 'userId', as: 'profile' });
-UserProfile.belongsTo(User, { foreignKey: 'userId' });
+// User ↔ StudentProfile (new)
+User.hasOne(StudentProfile, { foreignKey: 'userId', as: 'students' });
+StudentProfile.belongsTo(User, { foreignKey: 'userId' });
 
 // UserProfile ↔ ClassLevel
-ClassLevel.hasMany(UserProfile, { foreignKey: 'classLevelId', as: 'students' });
-UserProfile.belongsTo(ClassLevel, { foreignKey: 'classLevelId', as: 'classLevel' });
+ClassLevel.hasMany(StudentProfile, { foreignKey: 'classLevelId', as: 'students' });
+StudentProfile.belongsTo(ClassLevel, { foreignKey: 'classLevelId', as: 'classLevel' });
 
 // User ↔ Role (many-to-many)
 User.belongsToMany(Role, { through: UserRole, foreignKey: 'userId' });

@@ -33,16 +33,16 @@ export class UserAuthVerificationService {
       expiresAt: expiresAt,
     });
 
+     console.log("hashed",hashToken);
     return rawToken;
   }
 
   /**
    * Send email verification or password reset
    */
-
   async sendAuthVerification(userId, email, type) {
     const rawToken = await this.createVerificationToken(userId, type);
-    console.log("token1", rawToken);
+    console.log("raw",rawToken);
 
     const path = type === "EMAIL_VERIFICATION" ? "verify-email" : "reset-password";
 
@@ -58,9 +58,11 @@ export class UserAuthVerificationService {
     const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
 
     const storedToken = await this.verifyToken.findValidVerificationToken(hashedToken, "EMAIL_VERIFICATION");
+
     if (!storedToken) throw new InvalidTokenError();
 
     await this.userRepo.updateUserAccountStatus(storedToken.userId, 'ACTIVE');
+
     await this.userRepo.markEmailVerified(storedToken.userId);
     
     // Delete token to prevent replay attack

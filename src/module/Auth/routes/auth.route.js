@@ -1,5 +1,5 @@
 import { Router } from "express";
-import validationMiddleware from "../../../common/middleware/validation.middleware.js";
+import  validationMiddleware from "../../../common/middleware/validation.middleware.js";
 import { forgotPasswordSchema, loginSchema, resetPasswordSchema, signupSchema } from "../validation/auth.validation.js";
 import { authController, authMiddleware} from "../container.js";
 import { createRateLimiter } from "../../../common/middleware/rateLimitter.middleware.js";

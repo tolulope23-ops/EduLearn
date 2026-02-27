@@ -8,6 +8,7 @@ import { PasswordHasher } from "../utils/passwordHashing.utils.js";
 import { generateAccessToken } from "../utils/verificationToken.utils.js";
 import { UserRefreshTokenService } from "./refreshToken.service.js";
 import { UserSessionService } from "./session.service.js";
+import { StudentProfileService } from "./studentProfile.service.js";
 import { UserAuthVerificationService } from "./verification.service.js";
 
 export class UserAuthService {
@@ -21,6 +22,7 @@ export class UserAuthService {
    * @param {UserRefreshTokenService} refreshToken
    * @param {UserRoleRepository} userRole
    * @param {RoleRepository} role
+   * @param {StudentProfileService} studentService
    */
   constructor(
     userRepo, 
@@ -31,7 +33,8 @@ export class UserAuthService {
     session, 
     refreshToken, 
     userRole, 
-    role
+    role,
+    studentService
   ) {
     this.userRepo = userRepo;
     this.userAuth = userAuth;
@@ -43,6 +46,7 @@ export class UserAuthService {
     this.refreshToken = refreshToken;
     this.userRole = userRole;
     this.role = role;
+    this.studentService = studentService
   }
 
   /** SIGN UP */
@@ -64,13 +68,17 @@ export class UserAuthService {
       secretHash: hashedPassword
     });
 
-    console.log(fullName, location);
-    
-
     // Assign default role
     const roleEntity = await this.role.getRoleByName("STUDENT");
     await this.userRole.assignRoleToUser({ userId: newUser.id, roleId: roleEntity.id });
 
+    //Create student profile
+    const profile = await this.studentService.createStudentProfile({
+      userId: newUser.id,
+      fullName,
+      location,
+    });
+    
     // Send email verification
     try {
       await this.verifyService.sendAuthVerification(
@@ -84,7 +92,7 @@ export class UserAuthService {
 
     return {
       success: true,
-      user: {fullName, user: newUser.email},
+      user: {email: newUser.email, name: profile.fullName},
       message: "Registration successful. Please verify your email."
     };
   }
@@ -94,28 +102,28 @@ export class UserAuthService {
     const user = await this.userRepo.getUserByEmail(email);
     if (!user) throw new InvalidCredentialsError("Invalid email or password");
 
-    // if (!user.isEmailVerified)
-    //   throw new InvalidCredentialsError("Please verify your email first");
+    if (!user.isEmailVerified)
+      throw new InvalidCredentialsError("Please verify your email first");
 
     const credential = await this.userAuth.getUserCredentialByUserId(user.id);
 
     // Check if account is locked
     if (credential.lockedUntil && credential.lockedUntil > new Date()) {
       throw new InvalidCredentialsError("Account temporarily locked");
-    }
+    };
 
     // Check failed attempts
     if (credential.failedAttempts >= 5) {
       await this.userAuth.lockUserAccess(user.id, new Date(Date.now() + 10 * 1000));
       throw new InvalidCredentialsError("Too many failed attempts");
-    }
+    };
 
     // Verify password
     const isPasswordCorrect = await this.hashPassword.verify(password, credential.secretHash);
     if (!isPasswordCorrect) {
       await this.userAuth.incrementFailedAttempts(user.id);
       throw new InvalidCredentialsError("Invalid email or password");
-    }
+    };
 
     // Reset failed attempts on success
     await this.userAuth.resetFailedAttempts(user.id);
@@ -164,21 +172,24 @@ export class UserAuthService {
     //Find user by email
     const user = await this.userRepo.getUserByEmail(email);
     if (!user) throw new RecordNotFoundError("User not found");
-
+    
     //Check if already verified, before resending verification token
+    console.log(user.isEmailVerified);
+    
     if (user.isEmailVerified) {
       return { message: "Email already verified" };
-    }
+    };
 
+    //Delete existing verification link send verification email 
     await this.verifyRepo.deleteVerificationTokenByUser(user.id, 'EMAIL_VERIFICATION');
-    // If email not verified, send verification email
+
     try {
       await this.verifyService.sendAuthVerification(
         user.id,
         email,
         "EMAIL_VERIFICATION"
       );
-      return {message: "Verification email sent successfully"};
+      return {message: "Verification email resent successfully"};
     } catch (error) {
       console.error("Failed to send verification email:", error.message);
     };
@@ -196,7 +207,7 @@ export class UserAuthService {
       );
     };
     return {
-      message: "If the account exists and is verified, a password reset link has been sent."
+      message: "Password reset link has been sent."
     };
   };
 
@@ -231,7 +242,7 @@ export class UserAuthService {
         console.error("Failed to send verification email:", error.message);
       };
 
-    return { message: "Password Reset verification email sent successfully" };
+    return { message: "Password Reset verification email resent successfully" };
   };
 
   /** LOGOUT */

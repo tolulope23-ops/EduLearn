@@ -1,7 +1,10 @@
 import z from 'zod';
 
 export const signupSchema = z.object({
-  fullName: z.string().min(2, "Full name is required"),
+ fullName: z
+    .string()
+    .min(2, "Full name must be at least 2 characters")
+    .max(100, "Full name too long"),
   // phone: z.string().regex(/^(?:\+234|234|0)(70|80|81|90|91)\d{8}$/,
   //     "Invalid nigerian phone number"
   //   )
@@ -29,7 +32,10 @@ export const signupSchema = z.object({
     .regex(/(?=.*[0-9])/, "Password must contain a number")
     .regex(/(?=.*[\W])/, "Password must contain a special character"),
   
-    location: z.string().min(2, "Location is required")
+  location: z
+    .string()
+    .min(2, "Location must be at least 2 characters")
+    .max(100, "Location too long"),
 });
 
 
