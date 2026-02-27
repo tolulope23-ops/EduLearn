@@ -12,8 +12,6 @@ router.get('/me', authMiddleware.authenticate(), studentProfileController.getMyP
 router.get('/:id', studentProfileController.getProfileById);
 
 //Update student profile
-router.put('/:id', authMiddleware.authenticate(), validationMiddleware(updateStudentProfileSchema), studentProfileController.updateProfile);
-
-// router.delete('/', StudentProfileController.deleteProfile);
+router.patch('/me', authMiddleware.authenticate(), validationMiddleware(updateStudentProfileSchema), studentProfileController.updateProfile);
 
 export default router;

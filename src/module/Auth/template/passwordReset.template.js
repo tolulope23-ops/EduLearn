@@ -112,11 +112,11 @@ export function passwordResetTemplate(resetPasswordLink){
               <!-- Footer -->
               <tr>
                 <td class="email-footer">
-                  <p>© ${year} Your Company Name. All rights reserved.</p>
+                  <p>© ${year} EduLearn. All rights reserved.</p>
                   <p>
                     Need help? Contact us at
-                    <a href="mailto:support@yourcompany.com">
-                      support@yourcompany.com
+                    <a href="mailto:support@EduLearn.com">
+                      support@EduLearn.com
                     </a>
                   </p>
                 </td>

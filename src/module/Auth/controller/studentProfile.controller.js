@@ -28,7 +28,7 @@ export class StudentProfileController {
   // GET PROFILE BY USER ID (current logged-in user)
     getMyProfile = async (req, res, next) => {
         try {
-            const userId = req.user.id;
+            const userId = req.user.userId;
 
             const profile = await this.studentProfileService.getStudentProfileByUserId(userId);
 
@@ -62,7 +62,7 @@ export class StudentProfileController {
   // UPDATE PROFILE
     updateProfile = async (req, res, next) => {
         try {
-            const userId = req.user.id;
+            const userId = req.user.userId;
             const updateData = req.body;
 
             const updatedProfile = await this.studentProfileService.updateStudentProfile(userId, updateData);
@@ -81,7 +81,7 @@ export class StudentProfileController {
   // DELETE PROFILE
     deleteProfile = async(req, res, next) => {
         try {
-            const userId = req.user.id;
+            const userId = req.user.userId;
             await this.studentProfileService.deleteStudentProfile(userId);
         return res.status(200).json({
             success: true,

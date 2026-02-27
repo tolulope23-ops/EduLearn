@@ -36,13 +36,13 @@ export class StudentProfileRepository {
   // UPDATE QUERY OPERATION
   async updateStudentProfile(userId, updateData) {
     try {
-      const [affectedRows] = await UserProfile.update(updateData, { where: { userId } });
+      const [affectedRows] = await StudentProfile.update(updateData, { where: { userId } });      
 
       if (affectedRows === 0) {
         throw new RecordNotFoundError("Student profile not found");
       }
 
-      const updatedProfile = await this.getProfileByUserId(id);
+      const updatedProfile = await this.getProfileByUserId(userId);
       return updatedProfile;
     } catch (error) {
       handleSequelizeError(error);

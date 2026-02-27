@@ -127,7 +127,7 @@ export function verifyEmailTemplate(verificationLink){
                 <td class="email-body">
                     <h2>Hello 👋</h2>
                     <p>
-                    Thanks for signing up! Please confirm your email address to
+                    Thanks for signing up on EduLearn! Please confirm your email address to
                     activate your account.
                     </p>
 
@@ -139,7 +139,7 @@ export function verifyEmailTemplate(verificationLink){
                    border-radius: 6px; font-weight: bold; text-align: center;">Verify Email</a>
 
                     <p style="margin-top: 24px">
-                    This verification link will expire in
+                    This link will expire in
                     <strong> 2 minutes</strong>. If you didn’t create an account,
                     you can safely ignore this email.
                     </p>
@@ -150,12 +150,12 @@ export function verifyEmailTemplate(verificationLink){
                 <tr>
                 <td class="email-footer">
                     <p>
-                    © ${year} Your Company Name. All rights reserved.
+                    © ${year} EduLearn. All rights reserved.
                     </p>
                     <p>
                     If you have any questions, contact support at
-                    <a href="mailto:support@yourcompany.com">
-                        support@yourcompany.com
+                    <a href="mailto:support@Edulearn.com">
+                        support@Edulearn.com
                     </a>
                     </p>
                 </td>

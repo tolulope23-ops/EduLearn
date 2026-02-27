@@ -30,13 +30,20 @@ export class StudentProfileService {
   };
 
   async updateStudentProfile(userId, updateData) {
+    const updatePayload = { ...updateData };
     if(updateData.classLevel) {
       const classlevel = await this.classLevelRepo.getClassLevelByName(updateData.classLevel);
-      updateData.classLevelId = classlevel?.id;
+
+   if (!classlevel) {
+      throw new RecordNotFoundError("Class level not found");
     };
 
-    const updatedProfile = await this.studentProfileRepo.updateStudentProfile(userId, updateData);
-    if (!updatedProfile) throw new RecordNotFoundError('User profile not found');
+    updatePayload.classLevelId = classlevel.id;
+    delete updatePayload.classLevel;
+  }
+
+    const updatedProfile = await this.studentProfileRepo.updateStudentProfile(userId, updatePayload);
+    if (!updatedProfile) throw new RecordNotFoundError('Student profile not found');
 
     return updatedProfile;
   };
@@ -44,7 +51,7 @@ export class StudentProfileService {
   /** DELETE PROFILE */
   async deleteStudentProfile(userId) {
     const deleted = await this.studentProfileRepo.deleteStudentProfile(userId);
-    if (!deleted) throw new RecordNotFoundError('User profile not found');
+    if (!deleted) throw new RecordNotFoundError('Student profile not found');
     return deleted;
-  }
+  };
 };
