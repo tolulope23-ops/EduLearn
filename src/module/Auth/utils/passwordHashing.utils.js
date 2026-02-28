@@ -31,3 +31,8 @@ export function addSeconds(secs) {
   return new Date(Date.now() + secs * 1000);
 };
 
+export function getFirstName(fullName) {
+  if (!fullName) return '';
+  return fullName.trim().split(' ')[0];
+}
+

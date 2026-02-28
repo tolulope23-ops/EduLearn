@@ -35,17 +35,17 @@ export class EmailService {
    * @param {"EMAIL_VERIFICATION"|"PASSWORD_RESET"} type
    * @param {string} token 
    */
-  async sendVerification(to, type, token) {
+  async sendVerification(to, type, token, name) {
     let subject, html;
 
     switch (type) {
       case "EMAIL_VERIFICATION":
         subject = "Verify your email";
-        html = verifyEmailTemplate(token);
+        html = verifyEmailTemplate(token, name);
         break;
       case "PASSWORD_RESET":
         subject = "Reset your password";
-        html = passwordResetTemplate(token);
+        html = passwordResetTemplate(token, name);
         break;
       default:
         throw new Error("Unsupported email template type");

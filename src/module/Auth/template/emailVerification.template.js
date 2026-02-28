@@ -1,4 +1,4 @@
-export function verifyEmailTemplate(verificationLink){
+export function verifyEmailTemplate(verificationLink, name){
     const year = new Date().getFullYear();
 
     return `<!DOCTYPE html>
@@ -125,7 +125,7 @@ export function verifyEmailTemplate(verificationLink){
                 <!-- Body -->
                 <tr>
                 <td class="email-body">
-                    <h2>Hello 👋</h2>
+                    <h2>Hello, ${name}👋</h2>
                     <p>
                     Thanks for signing up on EduLearn! Please confirm your email address to
                     activate your account.
