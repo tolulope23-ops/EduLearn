@@ -10,6 +10,7 @@ import { UserRefreshTokenService } from "./refreshToken.service.js";
 import { UserSessionService } from "./session.service.js";
 import { StudentProfileService } from "./studentProfile.service.js";
 import { UserAuthVerificationService } from "./verification.service.js";
+import { getFirstName } from "../utils/passwordHashing.utils.js";
 
 export class UserAuthService {
   /**
@@ -46,8 +47,9 @@ export class UserAuthService {
     this.refreshToken = refreshToken;
     this.userRole = userRole;
     this.role = role;
-    this.studentService = studentService
+    this.studentService = studentService;
   }
+
 
   /** SIGN UP */
   async signUp({ fullName, email, password, location }) {
@@ -84,7 +86,8 @@ export class UserAuthService {
       await this.verifyService.sendAuthVerification(
         newUser.id,
         email,
-        "EMAIL_VERIFICATION"
+        "EMAIL_VERIFICATION",
+        getFirstName(profile.fullName)
       );
     } catch (error) {
       console.error("Verification email failed:", error.message);
@@ -172,10 +175,10 @@ export class UserAuthService {
     //Find user by email
     const user = await this.userRepo.getUserByEmail(email);
     if (!user) throw new RecordNotFoundError("User not found");
+
+    const userName = await this.studentService.getStudentProfileByUserId(user.id);
     
     //Check if already verified, before resending verification token
-    console.log(user.isEmailVerified);
-    
     if (user.isEmailVerified) {
       return { message: "Email already verified" };
     };
@@ -187,7 +190,8 @@ export class UserAuthService {
       await this.verifyService.sendAuthVerification(
         user.id,
         email,
-        "EMAIL_VERIFICATION"
+        "EMAIL_VERIFICATION",
+        getFirstName(userName.fullName)
       );
       return {message: "Verification email resent successfully"};
     } catch (error) {
@@ -199,13 +203,29 @@ export class UserAuthService {
   async forgotPassword(email) {
     const user = await this.userRepo.getUserByEmail(email);
 
-    if (user && user.isEmailVerified) {
+    const userName = await this.studentService.getStudentProfileByUserId(user.id);
+
+    if (!user.isEmailVerified) {
+      // Delete existing EMAIL_VERIFICATION token to avoid duplicates
+      await this.verifyRepo.deleteVerificationTokenByUser(user.id, "EMAIL_VERIFICATION");
+      
       await this.verifyService.sendAuthVerification(
         user.id,
         email,
-        "PASSWORD_RESET"
+        "EMAIL_VERIFICATION",
+        getFirstName(userName.fullName)
       );
+      return {
+        message: "Your account is not verified. A verification email has been sent."
+      };
     };
+
+    await this.verifyService.sendAuthVerification(
+      user.id,
+      email,
+      "PASSWORD_RESET",
+      getFirstName(userName.fullName)
+    );
     return {
       message: "Password reset link has been sent."
     };
@@ -235,9 +255,11 @@ export class UserAuthService {
     //Check if already verified, before resending verification token
       await this.verifyRepo.deleteVerificationTokenByUser(user.id, 'PASSWORD_RESET');
 
+      const userName = await this.studentService.getStudentProfileByUserId(user.id);
+
     // send resetpassword verification
      try {
-        await this.verifyService.sendAuthVerification(user.id, email, "PASSWORD_RESET");
+        await this.verifyService.sendAuthVerification(user.id, email, "PASSWORD_RESET", getFirstName(userName.fullName));
       } catch (error) {
         console.error("Failed to send verification email:", error.message);
       };

@@ -33,22 +33,20 @@ export class UserAuthVerificationService {
       expiresAt: expiresAt,
     });
 
-     console.log("hashed",hashToken);
     return rawToken;
   }
 
   /**
    * Send email verification or password reset
    */
-  async sendAuthVerification(userId, email, type) {
+  async sendAuthVerification(userId, email, type, name) {
     const rawToken = await this.createVerificationToken(userId, type);
-    console.log("raw",rawToken);
 
     const path = type === "EMAIL_VERIFICATION" ? "verify-email" : "reset-password";
 
     const verificationLink = `${FRONTEND_URL}/api/v1/auth/${path}?token=${rawToken}`;
 
-    await this.emailService.sendVerification(email, type, verificationLink);
+    await this.emailService.sendVerification(email, type, verificationLink, name);
   };
 
   /**
