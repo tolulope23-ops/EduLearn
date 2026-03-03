@@ -1,8 +1,7 @@
 import sequelize from "../../../common/database/connection.js";
 import { DataTypes } from "sequelize";
 
-const Submodule = sequelize.define("Submodule",
-  {
+const Submodule = sequelize.define("Submodule", {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
@@ -39,6 +38,16 @@ const Submodule = sequelize.define("Submodule",
       defaultValue: false,
     },
 
+    contentSize: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+
+    contentVersion: {
+      type: DataTypes.INTEGER,
+      defaultValue: 1,
+    },
+
     sequenceNumber: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -47,6 +56,12 @@ const Submodule = sequelize.define("Submodule",
   {
     tableName: "submodules",
     timestamps: true,
+    indexes: [
+      {
+        unique: true,
+        fields: ["moduleId", "sequenceNumber"],
+      },
+    ],
   }
 );
 

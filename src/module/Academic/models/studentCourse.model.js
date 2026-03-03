@@ -1,48 +1,33 @@
 import sequelize from "../../../common/database/connection.js";
 import { DataTypes } from "sequelize";
 
-const Lesson = sequelize.define("Lesson", {
+const StudentCourses = sequelize.define("StudentCourses", {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
 
+    studentId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
+
     courseId: {
       type: DataTypes.UUID,
       allowNull: false,
     },
-
-    classLevelId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-    },
-
-    title: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-
-    description: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-    },
-
-    sequenceNumber: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
   },
   {
-    tableName: "lessons",
+    tableName: "student_courses",
     timestamps: true,
     indexes: [
       {
         unique: true,
-        fields: ["courseId", "classLevelId", "sequenceNumber"],
+        fields: ["studentId", "courseId"], // prevents duplicates
       },
     ],
   }
 );
 
-export default Lesson;
+export default StudentCourses;

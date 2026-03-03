@@ -1,8 +1,7 @@
 import sequelize from "../../../common/database/connection.js";
 import { DataTypes } from "sequelize";
 
-const ModuleProgress = sequelize.define("ModuleProgress",
-  {
+const ModuleProgress = sequelize.define("ModuleProgress", {
     studentId: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -20,13 +19,18 @@ const ModuleProgress = sequelize.define("ModuleProgress",
       defaultValue: false,
     },
 
-    completionDate: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-
     score: {
       type: DataTypes.INTEGER,
+      validate: { min: 0, max: 100 },
+    },
+
+    attemptCount: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+
+    completionDate: {
+      type: DataTypes.DATE,
       allowNull: true,
     },
   },

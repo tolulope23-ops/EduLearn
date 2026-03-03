@@ -103,15 +103,26 @@ export class UserAuthService {
   /** LOGIN */
   async login({ email, password }, sessionData) {
     const user = await this.userRepo.getUserByEmail(email);
+  
     if (!user) throw new InvalidCredentialsError("Invalid email or password");
 
-    if (!user.isEmailVerified)
+    const userName = await this.studentService.getStudentProfileByUserId(user.id);
+
+    if (!user.isEmailVerified) {
+       await this.verifyService.sendAuthVerification(
+        newUser.id,
+        email,
+        "EMAIL_VERIFICATION",
+        getFirstName(userName.fullName)
+      );
       throw new InvalidCredentialsError("Please verify your email first");
+    };
 
     const credential = await this.userAuth.getUserCredentialByUserId(user.id);
 
     // Check if account is locked
     if (credential.lockedUntil && credential.lockedUntil > new Date()) {
+
       throw new InvalidCredentialsError("Account temporarily locked");
     };
 
@@ -208,7 +219,7 @@ export class UserAuthService {
     if (!user.isEmailVerified) {
       // Delete existing EMAIL_VERIFICATION token to avoid duplicates
       await this.verifyRepo.deleteVerificationTokenByUser(user.id, "EMAIL_VERIFICATION");
-      
+
       await this.verifyService.sendAuthVerification(
         user.id,
         email,
