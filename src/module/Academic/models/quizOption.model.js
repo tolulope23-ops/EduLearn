@@ -1,22 +1,32 @@
 import sequelize from "../../../common/database/connection.js";
 import { DataTypes } from "sequelize";
 
-const Course = sequelize.define("Course",{
+const QuizOption = sequelize.define("QuizOption", {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
 
-    name: {
+    questionId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
+
+    option: {
       type: DataTypes.STRING,
       allowNull: false,
     },
+
+    isCorrect: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
   },
   {
-    tableName: "courses",
+    tableName: "quiz_options",
     timestamps: true,
   }
 );
 
-export default Course;
+export default QuizOption;

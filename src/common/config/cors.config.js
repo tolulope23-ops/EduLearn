@@ -1,6 +1,7 @@
 import cors from "cors";
 import { allowedOrigins } from "./env.config.js";
 
+
 export const corsMiddleware = cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);

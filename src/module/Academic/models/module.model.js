@@ -18,6 +18,11 @@ const Module = sequelize.define("Module", {
       allowNull: false,
     },
 
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+
     sequenceNumber: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -26,6 +31,12 @@ const Module = sequelize.define("Module", {
   {
     tableName: "modules",
     timestamps: true,
+    indexes: [
+      {
+        unique: true,
+        fields: ["lessonId", "sequenceNumber"],
+      },
+    ],
   }
 );
 
