@@ -1,6 +1,7 @@
 import ClassLevel from "../models/classLevel.model.js";
 import { handleSequelizeError } from "../../../common/error/sequeliseError.error.js";
 import { RecordNotFoundError } from "../../../common/error/domainError.error.js";
+import { Op } from "sequelize";
 
 export class ClassLevelRepository {
 
@@ -42,7 +43,13 @@ export class ClassLevelRepository {
 
   async getClassLevelByName(name) {
     try {
-      const classLevel = await ClassLevel.findOne({ where: { name } });
+      const classLevel = await ClassLevel.findOne({ 
+        where: {
+          name: {
+            [Op.iLike]: name, // case-insensitive
+          },
+        }
+      });
       return classLevel ? this.mapToClassLevelEntity(classLevel) : null;
     } catch (error) {
       handleSequelizeError(error);
