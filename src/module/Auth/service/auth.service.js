@@ -106,17 +106,17 @@ export class UserAuthService {
   
     if (!user) throw new InvalidCredentialsError("Invalid email or password");
 
-    const userName = await this.studentService.getStudentProfileByUserId(user.id);
+    // const userName = await this.studentService.getStudentProfileByUserId(user.id);
 
-    if (!user.isEmailVerified) {
-       await this.verifyService.sendAuthVerification(
-        newUser.id,
-        email,
-        "EMAIL_VERIFICATION",
-        getFirstName(userName.fullName)
-      );
-      throw new InvalidCredentialsError("Please verify your email first");
-    };
+    // if (!user.isEmailVerified) {
+    //    await this.verifyService.sendAuthVerification(
+    //     newUser.id,
+    //     email,
+    //     "EMAIL_VERIFICATION",
+    //     getFirstName(userName.fullName)
+    //   );
+    //   throw new InvalidCredentialsError("Please verify your email first");
+    // };
 
     const credential = await this.userAuth.getUserCredentialByUserId(user.id);
 

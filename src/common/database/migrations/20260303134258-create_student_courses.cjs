@@ -15,7 +15,7 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'student_profiles', // make sure this matches your actual table name
+          model: 'student_profiles', 
           key: 'id',
         },
         onUpdate: 'CASCADE',
