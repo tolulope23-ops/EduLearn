@@ -2,7 +2,7 @@ import ClassLevel from './classLevel.model.js';
 import Course from './course.model.js';
 import Lesson from './lesson.model.js';
 import Module from './module.model.js';
-import Submodule from './submodule.model.js';
+import SubModule from './subModule.model.js';
 import ModuleProgress from './moduleProgress.model.js';
 import SubmoduleProgress from './subModuleProgress.model.js';
 import StudentProfile from '../../Auth/models/studentProfile.model.js';
@@ -31,8 +31,8 @@ Lesson.hasMany(Module, { foreignKey: 'lessonId', as: 'modules' });
 Module.belongsTo(Lesson, { foreignKey: 'lessonId', as: 'lesson' });
 
 // Module → Submodules
-Module.hasMany(Submodule, { foreignKey: 'moduleId', as: 'submodules' });
-Submodule.belongsTo(Module, { foreignKey: 'moduleId', as: 'module' });
+Module.hasMany(SubModule, { foreignKey: 'moduleId', as: 'submodules' });
+SubModule.belongsTo(Module, { foreignKey: 'moduleId', as: 'module' });
 
 // Student ↔ Module (progress)
 StudentProfile.belongsToMany(Module, {
@@ -52,14 +52,14 @@ ModuleProgress.belongsTo(StudentProfile, { foreignKey: 'studentId', as: 'student
 ModuleProgress.belongsTo(Module, { foreignKey: 'moduleId', as: 'module' });
 
 //Student ↔ Submodule (progress)
-StudentProfile.belongsToMany(Submodule, {
+StudentProfile.belongsToMany(SubModule, {
   through: SubmoduleProgress,
   foreignKey: 'studentId',
   otherKey: 'submoduleId',
   as: 'submoduleProgress',
 });
 
-Submodule.belongsToMany(StudentProfile, {
+SubModule.belongsToMany(StudentProfile, {
   through: SubmoduleProgress,
   foreignKey: 'submoduleId',
   otherKey: 'studentId',
@@ -67,11 +67,11 @@ Submodule.belongsToMany(StudentProfile, {
 });
 
 SubmoduleProgress.belongsTo(StudentProfile, { foreignKey: 'studentId', as: 'student' });
-SubmoduleProgress.belongsTo(Submodule, { foreignKey: 'submoduleId', as: 'submodule' });
+SubmoduleProgress.belongsTo(SubModule, { foreignKey: 'submoduleId', as: 'submodule' });
 
 // Submodule (quiz) → QuizQuestion
-Submodule.hasMany(QuizQuestion, { foreignKey: 'submoduleId', as: 'quizQuestions' });
-QuizQuestion.belongsTo(Submodule, { foreignKey: 'submoduleId', as: 'submodule' });
+SubModule.hasMany(QuizQuestion, { foreignKey: 'submoduleId', as: 'quizQuestions' });
+QuizQuestion.belongsTo(SubModule, { foreignKey: 'submoduleId', as: 'submodule' });
 
 //QuizQuestion → QuizOption
 QuizQuestion.hasMany(QuizOption, { foreignKey: 'questionId', as: 'options' });

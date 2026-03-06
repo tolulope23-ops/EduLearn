@@ -1,7 +1,7 @@
 import sequelize from "../../../common/database/connection.js";
 import { DataTypes } from "sequelize";
 
-const Submodule = sequelize.define("Submodule", {
+const SubModule = sequelize.define("SubModule", {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
@@ -65,4 +65,4 @@ const Submodule = sequelize.define("Submodule", {
   }
 );
 
-export default Submodule;
+export default SubModule;
