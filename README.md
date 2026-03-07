@@ -13,7 +13,6 @@ Edulearn is specifically tailored for **students in rural areas** or regions wit
 - [Architecture Overview](#architecture-overview)  
 - [Getting Started](#getting-started)  
 - [Installation](#installation)  
-- [Usage](#usage)  
 - [Contributing](#contributing)  
 - [License](#license)  
 - [Contact](#contact)  
@@ -85,9 +84,9 @@ cd edulearn
 npm install
 ```
 3. Set up environment variables:
-#### Check .env.example
+     Check .env.example
 
-4. Run database migrations:
+5. Run database migrations:
 
 ```bash
 npx sequelize-cli db:migrate
@@ -109,12 +108,13 @@ npm run dev
 Please follow the code style and ensure tests pass before submitting a PR.
 
 ## License
-This project is licensed under the MIT License – see the LICENSE file for details.
+This project is licensed under the MIT License, see the LICENSE file for details.
 
 ## Contact
 For questions or suggestions:
 
-GitHub: https://github.com/<tolulope23-ops>
+GitHub: https://github.com/tolulope23-ops
 
 Email: tolulope.r.adeyemi@gmail.com
+
 
