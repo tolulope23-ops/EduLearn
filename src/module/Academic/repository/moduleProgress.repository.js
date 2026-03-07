@@ -4,7 +4,7 @@ import { RecordNotFoundError } from "../../../common/error/domainError.error.js"
 
 export class ModuleProgressRepository {
 
-  // CREATE or INIT progress
+  // CREATE progress
   async createModuleProgress(data) {
     try {
       const progress = await ModuleProgress.create(data);

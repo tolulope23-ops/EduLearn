@@ -28,7 +28,7 @@ export class StudentCourseService{
         const courseIds = await this.assignCourseNameToIds(courseNames);
 
         // Prepare array for bulk insert
-        courseArray = courseIds.map(courseId => ({
+        const courseArray = courseIds.map(courseId => ({
             studentId, courseId
         }));
 

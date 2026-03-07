@@ -17,11 +17,13 @@ export class StudentProfileService {
     return await this.studentProfileRepo.createStudentProfile(data);
   };
 
+
   async getStudentProfileByUserId(userId) {
     const profile = await this.studentProfileRepo.getProfileByUserId(userId);
     if (!profile) throw new RecordNotFoundError('User profile not found');
     return profile;
   };
+
 
   async getStudentProfileById(id) {
     const profile = await this.studentProfileRepo.getProfileByStudentId(id);
@@ -29,12 +31,13 @@ export class StudentProfileService {
     return profile;
   };
 
+
   async updateStudentProfile(userId, updateData) {
     const updatePayload = { ...updateData };
     if(updateData.classLevel) {
       const classlevel = await this.classLevelRepo.getClassLevelByName(updateData.classLevel);
 
-   if (!classlevel) {
+    if (!classlevel) {
       throw new RecordNotFoundError("Class level not found");
     };
 
@@ -48,6 +51,7 @@ export class StudentProfileService {
     return updatedProfile;
   };
 
+  
   /** DELETE PROFILE */
   async deleteStudentProfile(userId) {
     const deleted = await this.studentProfileRepo.deleteStudentProfile(userId);
