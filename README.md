@@ -75,7 +75,7 @@ These instructions will help you set up Edulearn **locally** for development and
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/<tolulope23-ops>/edulearn.git
+git clone https://github.com/tolulope23-ops/edulearn.git
 cd edulearn
 ```
 2. Install dependencies:
@@ -116,5 +116,6 @@ For questions or suggestions:
 GitHub: https://github.com/tolulope23-ops
 
 Email: tolulope.r.adeyemi@gmail.com
+
 
 
