@@ -21,7 +21,7 @@ export const moduleProgressSchema = z.object({
     .optional(),
 });
 
-export const completeModuleSchema = z.object({
+export const updateModuleSchema = z.object({
   studentId: z
     .string()
     .uuid("Invalid studentId"),
@@ -37,5 +37,5 @@ export const completeModuleSchema = z.object({
     .max(100)
     .optional(),
 
-  completed: z.literal(true),
+  completed: z.literal(true).optional(),
 });

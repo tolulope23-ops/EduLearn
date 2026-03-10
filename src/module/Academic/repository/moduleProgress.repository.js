@@ -4,19 +4,20 @@ import { RecordNotFoundError } from "../../../common/error/domainError.error.js"
 
 export class ModuleProgressRepository {
 
-  // CREATE progress
+  //CREATE progress
   async createModuleProgress(data) {
     try {
       const progress = await ModuleProgress.create(data);
-      return this.mapToEntity(progress);
+      return this.mapToModuleProgressEntity(progress);
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
-
+  };
+  
   // UPDATE progress (completed, score, attemptCount, completionDate)
   async updateModuleProgress(studentId, moduleId, data) {
     try {
+
       const [affectedRows] = await ModuleProgress.update(data, {
         where: { studentId, moduleId },
       });
@@ -26,17 +27,17 @@ export class ModuleProgressRepository {
       }
 
       const updatedProgress = await ModuleProgress.findOne({ where: { studentId, moduleId } });
-      return this.mapToEntity(updatedProgress);
+      return this.mapToModuleProgressEntity(updatedProgress);
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
 
   // GET progress by student + module
   async getModuleProgress(studentId, moduleId) {
     try {
       const progress = await ModuleProgress.findOne({ where: { studentId, moduleId } });
-      return progress ? this.mapToEntity(progress) : null;
+      return progress ? this.mapToModuleProgressEntity(progress) : null;
     } catch (error) {
       handleSequelizeError(error);
     }
@@ -46,7 +47,7 @@ export class ModuleProgressRepository {
   async getAllModuleProgressByStudent(studentId) {
     try {
       const progressRecords = await ModuleProgress.findAll({ where: { studentId } });
-      return progressRecords.map(this.mapToEntity);
+      return progressRecords.map(progress => this.mapToModuleProgressEntity(progress));
     } catch (error) {
       handleSequelizeError(error);
     }
@@ -64,12 +65,13 @@ export class ModuleProgressRepository {
   }
 
   // HELPER
-  mapToEntity(progress) {
+  mapToModuleProgressEntity(progress) {
     if (!progress) return null;
 
     return {
       studentId: progress.studentId,
       moduleId: progress.moduleId,
+      progress: progress.progress,
       completed: progress.completed,
       score: progress.score ?? undefined,
       attemptCount: progress.attemptCount,
@@ -78,4 +80,4 @@ export class ModuleProgressRepository {
       updatedAt: progress.updatedAt,
     };
   }
-}
+};

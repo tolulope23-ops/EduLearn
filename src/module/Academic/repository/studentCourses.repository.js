@@ -8,7 +8,7 @@ export class StudentCourseRepository{
     async bulkCreateStudentCourses(courseArray){
         try {
             const courses = await StudentCourses.bulkCreate(courseArray);
-            return courses.map(course => this.mapToEntity(course));
+            return courses.map(course => this.mapToStudentCourseEntity(course));
         } catch (error) {
             handleSequelizeError(error);
         }
@@ -32,14 +32,15 @@ export class StudentCourseRepository{
                 where: { studentId },
             });
 
-            return records.map(record => this.mapToEntity(record));
+            return records.map(record => this.mapToStudentCourseEntity(record));
         } catch (error) {
             handleSequelizeError(error);
         };
     };
 
-      // DELETE a selected course
-    async removeStudentCourse(studentId, courseId) {
+
+// DELETE a selected course
+    async deleteStudentCourse(studentId, courseId) {
         try {
             const deleted = await StudentCourses.destroy({
                 where: { studentId, courseId },
@@ -56,7 +57,7 @@ export class StudentCourseRepository{
     };
 
 // HELPER: Map Sequelize instance to domain entity
-    mapToEntity(course) {
+    mapToStudentCourseEntity(course) {
         if (!course) return null;
 
         return {

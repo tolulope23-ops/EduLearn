@@ -57,12 +57,11 @@ export class ModuleRepository {
 
 
   async getAllModules() {
-    try {
-      const modules = await Module.findAll();
-      return modules.map(m => this.mapToModuleEntity(m));
-    } catch (error) {
-      handleSequelizeError(error);
-    }
+    const modules = await Module.findAll({
+      order: [["sequenceNumber", "ASC"]],
+    });
+
+    return modules.map(module => this.mapToModuleEntity(module));
   };
 
   // GET MODULES BY LESSON
@@ -73,7 +72,7 @@ export class ModuleRepository {
         order: [["sequenceNumber", "ASC"]],
       });
 
-      return modules.map(m => this.mapToModuleEntity(m));
+      return modules.map(module => this.mapToModuleEntity(module));
     } catch (error) {
       handleSequelizeError(error);
     }

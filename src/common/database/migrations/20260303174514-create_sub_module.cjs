@@ -44,7 +44,7 @@ module.exports = {
 
       downloadable: {
         type: Sequelize.BOOLEAN,
-        defaultValue: false,
+        defaultValue: true,
       },
 
       contentSize: {

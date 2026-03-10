@@ -2,19 +2,23 @@ import { RecordNotFoundError } from "../../../common/error/domainError.error";
 import { ClassLevelRepository } from "../repository/classLevel.repository";
 import { CourseRepository } from "../repository/course.repository";
 import { LessonRepository } from "../repository/lesson.repository";
+import { EnrollmentService } from "./enrollment.services";
 
 export class LessonService{
     /**
      * @param {LessonRepository} lessonRepo
      * @param {CourseRepository} courseRepo
      * @param {ClassLevelRepository} classLevelRepo
+     * @param { EnrollmentService} enrollmentService
      */
 
-    constructor(lessonRepo, courseRepo, classLevelRepo){
+    constructor(lessonRepo, courseRepo, classLevelRepo, enrollmentService){
         this.lessonRepo = lessonRepo;
         this.courseRepo = courseRepo;
         this.classLevelRepo = classLevelRepo;
+        this.enrollmentService = enrollmentService;
     };
+
 
     async createLesson({courseName, classLevelName, title, description, sequenceNumber}){
         const course = await this.courseRepo.getCourseByName(courseName);
@@ -37,6 +41,7 @@ export class LessonService{
         await this.lessonRepo.createLesson(data);
     };
 
+
     async getLesson(lessonId){
         const lesson = await this.lessonRepo.getLessonById(lessonId);
 
@@ -46,7 +51,7 @@ export class LessonService{
         return lesson;
     };
 
-    // GET LESSON BY SEQUENCE
+
     async getLessonBySequence(courseName, classLevelName, sequenceNumber) {
         const course = await this.courseRepo.getCourseByName(courseName);
 
@@ -59,9 +64,9 @@ export class LessonService{
             throw new RecordNotFoundError(`Class level "${classLevelName}" not found`);
 
         const lesson = await this.lessonRepo.getLessonBySequence(
-        course.id,
-        classLevel.id,
-        sequenceNumber
+            course.id,
+            classLevel.id,
+            sequenceNumber
         );
 
         if (!lesson) throw new RecordNotFoundError("Lesson not found");
@@ -69,26 +74,23 @@ export class LessonService{
         return lesson;
     };
 
-    async getLessonsByCourseAndClassLevel(courseName, classLevelName) {
-        const course = await this.courseRepo.getCourseByName(courseName);
-        if (!course)
-            throw new RecordNotFoundError(`Course "${courseName}" not found`);
 
-        const classLevel = await this.classLevelRepo.getClassLevelByName(classLevelName);
-        if (!classLevel)
-            throw new RecordNotFoundError(`Class level "${classLevelName}" not found`);
+    async getLessonsForStudent(userId) {
+        const enrollment = await this.enrollmentService.getStudentEnrollment(userId);
 
-        return await this.lessonRepo.getLessonsByCourseAndClassLevel(
-            course.id,
-            classLevel.id
+        const lessons = await this.lessonRepo.getLessonsByCourseAndClassLevel(
+            enrollment.courseIds, enrollment.classLevelId
         );
+
+        return lessons;
     };
+
 
     async updateLesson(lessonId, updateData) {
 
         const updatePayload = { ...updateData };
 
-        //Updates lesson data that includes classLevel and courseName convert to  their id
+        //Updates lesson data that includes classLevel and courseName convert to their id
         if (updateData.classLevel){
             const classlevel = await this.classLevelRepo.getClassLevelByName(updateData.classLevel);
             if (!classlevel) {

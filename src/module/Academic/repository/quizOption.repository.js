@@ -7,7 +7,7 @@ export class QuizOptionRepository {
   async createQuizOption(data) {
     try {
       const option = await QuizOption.create(data);
-      return this.mapToEntity(option);
+      return this.mapToQuizOptionEntity(option);
     } catch (error) {
       handleSequelizeError(error);
     }
@@ -17,7 +17,7 @@ export class QuizOptionRepository {
   async bulkCreateQuizOptions(optionsArray) {
     try {
       const options = await QuizOption.bulkCreate(optionsArray);
-      return options.map(this.mapToEntity);
+      return options.map(option => this.mapToQuizOptionEntity(option));
     } catch (error) {
       handleSequelizeError(error);
     }
@@ -33,7 +33,7 @@ export class QuizOptionRepository {
       }
 
       const updatedOption = await QuizOption.findByPk(id);
-      return this.mapToEntity(updatedOption);
+      return this.mapToQuizOptionEntity(updatedOption);
     } catch (error) {
       handleSequelizeError(error);
     }
@@ -54,7 +54,7 @@ export class QuizOptionRepository {
   async getQuizOptionById(id) {
     try {
       const option = await QuizOption.findByPk(id);
-      return option ? this.mapToEntity(option) : null;
+      return option ? this.mapToQuizOptionEntity(option) : null;
     } catch (error) {
       handleSequelizeError(error);
     }
@@ -64,7 +64,7 @@ export class QuizOptionRepository {
   async getAllQuizOptions() {
     try {
       const options = await QuizOption.findAll();
-      return options.map(this.mapToEntity);
+      return options.map(option => this.mapToQuizOptionEntity(option));
     } catch (error) {
       handleSequelizeError(error);
     }
@@ -73,18 +73,20 @@ export class QuizOptionRepository {
   // GET ALL OPTIONS FOR A QUESTION
   async getQuizOptionsByQuestion(questionId) {
     try {
+
       const options = await QuizOption.findAll({
         where: { questionId },
         order: [["createdAt", "ASC"]],
       });
-      return options.map(this.mapToEntity);
+
+      return options.map(option => this.mapToQuizOptionEntity(option));
     } catch (error) {
       handleSequelizeError(error);
     }
   }
 
   // HELPER
-  mapToEntity(option) {
+  mapToQuizOptionEntity(option) {
     if (!option) return null;
 
     return {

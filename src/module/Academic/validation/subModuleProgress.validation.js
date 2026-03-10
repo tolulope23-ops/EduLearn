@@ -26,7 +26,7 @@ export const submoduleProgressSchema = z.object({
 });
 
 
-export const completeSubmoduleSchema = z.object({
+export const updateSubmoduleSchema = z.object({
   studentId: z
     .string()
     .uuid("Invalid studentId"),
@@ -35,7 +35,7 @@ export const completeSubmoduleSchema = z.object({
     .string()
     .uuid("Invalid submoduleId"),
 
-  completed: z.literal(true),
+  completed: z.boolean().optional(),
 
   score: z
     .number()
@@ -43,16 +43,6 @@ export const completeSubmoduleSchema = z.object({
     .min(0)
     .max(100)
     .optional(),
-});
 
-export const downloadSubmoduleSchema = z.object({
-  studentId: z
-    .string()
-    .uuid("Invalid studentId"),
-
-  submoduleId: z
-    .string()
-    .uuid("Invalid submoduleId"),
-
-  downloaded: z.literal(true),
+  downloaded: z.boolean().optional()
 });

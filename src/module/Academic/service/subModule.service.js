@@ -31,8 +31,9 @@ export class SubModuleService {
 
         return await this.subModuleRepo.createSubmodule(data);
     };
+    
 
-    async getSubmodule(subModuleId) {
+    async getSubmoduleById(subModuleId) {
         const subModule = await this.subModuleRepo.getSubmoduleById(subModuleId);
 
         if (!subModule) 
@@ -40,6 +41,7 @@ export class SubModuleService {
 
         return subModule;
     };
+
 
     async getSubmodulesByModule(moduleId) {
         const module = await this.moduleRepo.getModuleById(moduleId);
@@ -50,6 +52,7 @@ export class SubModuleService {
         return await this.subModuleRepo.getSubmodulesByModule(moduleId);
     };
 
+
     async getSubmoduleBySequence(moduleId, sequenceNumber) {
         const subModule = await this.subModuleRepo.getSubmoduleBySequence(moduleId, sequenceNumber);
 
@@ -58,6 +61,7 @@ export class SubModuleService {
 
         return subModule;
     };
+
 
     async updateSubmodule(subModuleId, updateData) {
         const subModule = await this.subModuleRepo.getSubmoduleById(subModuleId);
@@ -68,6 +72,7 @@ export class SubModuleService {
         return await this.subModuleRepo.updateSubmodule(subModuleId, updateData);
     };
 
+
     async deleteSubmodule(subModuleId) {
         const subModule = await this.subModuleRepo.getSubmoduleById(subModuleId);
         if (!subModule) 
@@ -75,4 +80,4 @@ export class SubModuleService {
 
         return await this.subModuleRepo.deleteSubmodule(subModuleId);
     };
-}
+};

@@ -1,57 +1,68 @@
-import SubmoduleProgress from "../models/submoduleProgress.model.js";
+import SubmoduleProgress from "../models/subModuleProgress.model.js";
 import { handleSequelizeError } from "../../../common/error/sequeliseError.error.js";
 import { RecordNotFoundError } from "../../../common/error/domainError.error.js";
 
 export class SubmoduleProgressRepository {
-
+  
   async createSubModuleProgress(data) {
     try {
       const progress = await SubmoduleProgress.create(data);
-      return this.mapToEntity(progress);
+      return this.mapToSubModuleProgressEntity(progress);
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
 
-  // UPDATE progress (completed, score, downloaded, downloadedAt)
+
+// UPDATE progress (completed, score, downloaded, downloadedAt)
   async updateSubModuleProgress(studentId, submoduleId, data) {
     try {
+
+      if (data.downloaded === true){
+        data.downloadedAt = new Date();
+      };
+
       const [affectedRows] = await SubmoduleProgress.update(data, {
         where: { studentId, submoduleId },
       });
 
       if (affectedRows === 0) {
         throw new RecordNotFoundError("SubmoduleProgress not found");
-      }
+      };
 
       const updatedProgress = await SubmoduleProgress.findOne({ where: { studentId, submoduleId } });
-      return this.mapToEntity(updatedProgress);
+
+      return this.mapToSubModuleProgressEntity(updatedProgress);
+
     } catch (error) {
       handleSequelizeError(error);
-    }
+    };
   };
 
-  // GET progress by student + submodule
+
+// GET progress by student and submodule
   async getSubModuleProgress(studentId, submoduleId) {
     try {
       const progress = await SubmoduleProgress.findOne({ where: { studentId, submoduleId } });
-      return progress ? this.mapToEntity(progress) : null;
+      return progress ? this.mapToSubModuleProgressEntity(progress) : null;
     } catch (error) {
       handleSequelizeError(error);
     }
   };
 
-  // GET all progress for a student
+
+// GET all progress for a student
   async getAllSubModuleProgressByStudent(studentId) {
     try {
       const progressRecords = await SubmoduleProgress.findAll({ where: { studentId } });
-      return progressRecords.map(this.mapToEntity);
+      return progressRecords.map((progress) => this.mapToSubModuleProgressEntity(progress));
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
 
-  // GET all progress for a module
+
+// GET all progress for a module
   async getSubModuleProgressByModule(studentId, moduleId) {
     try {
       const progressRecords = await SubmoduleProgress.findAll({
@@ -61,13 +72,14 @@ export class SubmoduleProgressRepository {
           where: { moduleId },
         }],
       });
-      return progressRecords.map(this.mapToEntity);
+      return progressRecords.map(progress => this.mapToSubModuleProgressEntity(progress));
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
 
-  // DELETE a submodule progress record
+
+// DELETE a submodule progress record
   async deleteProgress(studentId, submoduleId) {
     try {
       const deletedRows = await SubmoduleProgress.destroy({ where: { studentId, submoduleId } });
@@ -76,10 +88,11 @@ export class SubmoduleProgressRepository {
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
+  
 
-  // HELPER
-  mapToEntity(progress) {
+// HELPER: Map to Domain Entity
+  mapToSubModuleProgressEntity(progress) {
     if (!progress) return null;
 
     return {

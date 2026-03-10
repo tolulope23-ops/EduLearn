@@ -7,11 +7,12 @@ export class QuizQuestionRepository {
   async createQuizQuestion(data) {
     try {
       const question = await QuizQuestion.create(data);
-      return this.mapToEntity(question);
+      return this.mapToQuizQuestionEntity(question);
     } catch (error) {
       handleSequelizeError(error);
     }
   };
+
 
   async updateQuizQuestion(id, data) {
     try {
@@ -22,11 +23,12 @@ export class QuizQuestionRepository {
       }
 
       const updatedQuestion = await QuizQuestion.findByPk(id);
-      return this.mapToEntity(updatedQuestion);
+      return this.mapToQuizQuestionEntity(updatedQuestion);
     } catch (error) {
       handleSequelizeError(error);
     }
   };
+
 
   async deleteQuizQuestion(id) {
     try {
@@ -37,25 +39,28 @@ export class QuizQuestionRepository {
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
+
 
   async getQuizQuestionById(id) {
     try {
       const question = await QuizQuestion.findByPk(id);
-      return question ? this.mapToEntity(question) : null;
+      return question ? this.mapToQuizQuestionEntity(question) : null;
     } catch (error) {
       handleSequelizeError(error);
     }
   };
 
+
   async getAllQuizQuestions() {
     try {
       const questions = await QuizQuestion.findAll();
-      return questions.map(this.mapToEntity);
+      return questions.map(question => this.mapToQuizQuestionEntity(question));
     } catch (error) {
       handleSequelizeError(error);
     }
   };
+
 
   // GET ALL BY SUBMODULE
   async getQuizQuestionsBySubmodule(submoduleId) {
@@ -64,14 +69,15 @@ export class QuizQuestionRepository {
         where: { submoduleId },
         order: [["createdAt", "ASC"]],
       });
-      return questions.map(this.mapToEntity);
+      return questions.map(question => this.mapToQuizQuestionEntity(question));
     } catch (error) {
       handleSequelizeError(error);
     }
   };
+  
 
   // HELPER
-  mapToEntity(question) {
+  mapToQuizQuestionEntity(question) {
     if (!question) return null;
 
     return {
