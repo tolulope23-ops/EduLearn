@@ -4,7 +4,6 @@ import { RecordNotFoundError } from "../../../common/error/domainError.error.js"
 
 export class ModuleProgressRepository {
 
-  //CREATE progress
   async createModuleProgress(data) {
     try {
       const progress = await ModuleProgress.create(data);
@@ -13,8 +12,25 @@ export class ModuleProgressRepository {
       handleSequelizeError(error);
     }
   };
+
+  async incrementAttemptCount(studentId, moduleId){
+    try {
+
+      await ModuleProgress.increment(
+        {
+          attemptCount: 1
+        },
+
+        { where: {studentId, moduleId}}
+      ); 
+
+    } catch (error) {
+      handleSequelizeError(error);
+    };
+  };
+
   
-  // UPDATE progress (completed, score, attemptCount, completionDate)
+  // UPDATE progress (completed, score, completionDate)
   async updateModuleProgress(studentId, moduleId, data) {
     try {
 
@@ -33,6 +49,7 @@ export class ModuleProgressRepository {
     }
   };
 
+
   // GET progress by student + module
   async getModuleProgress(studentId, moduleId) {
     try {
@@ -41,7 +58,8 @@ export class ModuleProgressRepository {
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
+
 
   // GET all progress for a student
   async getAllModuleProgressByStudent(studentId) {
@@ -51,7 +69,8 @@ export class ModuleProgressRepository {
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
+
 
   // DELETE a module progress record
   async deleteModuleProgress(studentId, moduleId) {
@@ -62,7 +81,8 @@ export class ModuleProgressRepository {
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
+
 
   // HELPER
   mapToModuleProgressEntity(progress) {
@@ -71,7 +91,7 @@ export class ModuleProgressRepository {
     return {
       studentId: progress.studentId,
       moduleId: progress.moduleId,
-      progress: progress.progress,
+      progress: progress.progress ?? undefined,
       completed: progress.completed,
       score: progress.score ?? undefined,
       attemptCount: progress.attemptCount,

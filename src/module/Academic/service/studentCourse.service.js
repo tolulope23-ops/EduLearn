@@ -10,12 +10,12 @@ export class StudentCourseService{
     constructor(courseRepo, studentCourseRepo){
         this.courseRepo = courseRepo;
         this.studentCourseRepo = studentCourseRepo;
-    }
+    };
 
     async assignCourseNameToIds(courseNames){
         if (!Array.isArray(courseNames) || courseNames.length === 0) {
             throw new Error("courseNames not selected");
-        }
+        };
 
         const coursesDb = await this.courseRepo.getCoursesByNames(courseNames);
         
@@ -35,4 +35,4 @@ export class StudentCourseService{
         //Save to DB
         return await this.studentCourseRepo.bulkCreateStudentCourses(courseArray);
     };
-}
+};

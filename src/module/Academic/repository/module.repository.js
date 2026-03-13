@@ -4,7 +4,6 @@ import { RecordNotFoundError } from "../../../common/error/domainError.error.js"
 
 export class ModuleRepository {
 
-  // CREATE
   async createModule(data) {
     try {
       const module = await Module.create(data);
@@ -14,7 +13,7 @@ export class ModuleRepository {
     }
   };
 
-  // UPDATE
+  
   async updateModule(id, data) {
     try {
       const [affectedRows] = await Module.update(data, { where: { id } });
@@ -30,7 +29,7 @@ export class ModuleRepository {
     }
   };
 
-  // DELETE
+
   async deleteModule(id) {
     try {
       const deletedRows = await Module.destroy({ where: { id } });
@@ -53,7 +52,7 @@ export class ModuleRepository {
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
 
 
   async getAllModules() {
@@ -63,6 +62,7 @@ export class ModuleRepository {
 
     return modules.map(module => this.mapToModuleEntity(module));
   };
+  
 
   // GET MODULES BY LESSON
   async getModulesByLesson(lessonId) {

@@ -4,7 +4,6 @@ import { StudentCourseRepository } from "../repository/studentCourses.repository
 
 export class EnrollmentService {
     /**
-     * 
      * @param {StudentProfileRepository} studentProfileRepo 
      * @param {StudentCourseRepository} studentCoursesRepo
      */
@@ -22,7 +21,7 @@ export class EnrollmentService {
             throw new RecordNotFoundError("Student profile not found");
 
         if(!profile.classLevelId)
-            throw new RecordNotFoundError("Student class level not set");
+            throw new RecordNotFoundError("Student class level not found");
 
         const studentId = profile.id;
         const classLevelId = profile.classLevelId;
@@ -39,6 +38,6 @@ export class EnrollmentService {
             classLevelId,
             courseIds
         };
-    }
+    };
 
-}
+};

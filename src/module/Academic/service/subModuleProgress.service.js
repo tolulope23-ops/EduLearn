@@ -7,17 +7,16 @@ export class SubmoduleProgressService {
    */
   constructor(submoduleProgressRepo) {
     this.submoduleProgressRepo = submoduleProgressRepo;
-  }
+  };
 
 // Initialize progress for a student on a submodule
     async initSubmoduleProgress(studentId, submoduleId) {
         const data = {
-        studentId,
-        submoduleId,
-        completed: false,
-        score: null,
-        downloaded: false,
-        downloadedAt: null,
+            studentId,
+            submoduleId,
+            completedAt: null,
+            score: 0,
+            downloadedAt: null,
         };
 
         return await this.submoduleProgressRepo.createSubModuleProgress(data);
@@ -26,22 +25,69 @@ export class SubmoduleProgressService {
 
 // Update progress (completion, score, downloaded)
     async updateSubmoduleProgress(studentId, submoduleId, progressData) {
+        const existing = await this.submoduleProgressRepo.getSubModuleProgress(
+            studentId, submoduleId
+        );
+
+        if (!existing)
+            throw new RecordNotFoundError("Submodule progress not found");
+
+        const updateData = { ...progressData };
+
+        //Only update score if new score is higher
+        if ("score" in progressData) {
+            if (existing.score !== null && progressData.score <= existing.score) {
+                delete updateData.score;
+            };
+        };
+        
+       // Set or clear completion timestamp based on completed boolean
+        if ("completed" in progressData) {
+            if (progressData.completed === true && !existing.completedAt) {
+                updateData.completedAt = new Date();
+            } else if (progressData.completed === false) {
+                updateData.completedAt = null;
+            };
+        };
+
+        // Set or clear download timestamp based on downloaded boolean
+        if ("downloaded" in progressData) {
+            if (progressData.downloaded === true && !existing.downloadedAt) {
+                updateData.downloadedAt = new Date();
+            } else if (progressData.downloaded === false) {
+                updateData.downloadedAt = null;
+            };
+        };
+
+        // Set download timestamp only the first time
+        if ("downloaded" in progressData && progressData.downloaded === true && !existing.downloadedAt) {
+            updateData.downloadedAt = new Date();
+        };
+
+        // // If nothing to update, return existing
+        // if (Object.keys(updateData).length === 0) return existing;
 
         // progressData can include: completed, score, downloaded, downloadedAt
         const updatedProgress = await this.submoduleProgressRepo.updateSubModuleProgress(
             studentId,
             submoduleId,
-            progressData
+            updateData
         );
 
-        return updatedProgress;
+        return {Message: 'Progress updated', data: updatedProgress};
     };
 
 //Mark submodule downloaded when the download button is clicked from the client
     async markSubmoduleDownloaded(studentId, submoduleId) {
         return await this.updateSubmoduleProgress(studentId, submoduleId, {
             downloaded: true,
-            downloadedAt: new Date()
+        });
+    };
+
+//Mark submodule completed when the completed button is clicked from the client
+    async markSubmoduleCompleted(studentId, submoduleId) {
+        return await this.updateSubmoduleProgress(studentId, submoduleId, {
+            completed: true,
         });
     };
 
@@ -73,4 +119,4 @@ export class SubmoduleProgressService {
     async deleteSubmoduleProgress(studentId, submoduleId) {
         return await this.submoduleProgressRepo.deleteProgress(studentId, submoduleId);
     };
-}
+};

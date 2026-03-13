@@ -1,17 +1,20 @@
 import { QuizQuestionRepository } from "../repository/quizQuestion.repository.js";
 import { QuizOptionRepository } from "../repository/quizOption.repository.js";
 import { RecordNotFoundError } from "../../../common/error/domainError.error.js";
+import { SubModuleRepository } from "../repository/subModule.repository.js";
 
 export class QuizService {
   /**
    * @param {QuizQuestionRepository} questionRepo
    * @param {QuizOptionRepository} optionRepo
+   * @param {SubModuleRepository} submoduleRepo
    */
 
-  constructor(questionRepo, optionRepo) {
+  constructor(questionRepo, optionRepo, submoduleRepo) {
     this.questionRepo = questionRepo;
     this.optionRepo = optionRepo;
-  }
+    this.submoduleRepo = submoduleRepo;
+  };
 
 // Create a quiz question (Admin)
     async createQuizQuestion(submoduleId, question) {
@@ -35,7 +38,7 @@ export class QuizService {
     };
 
 
-// Fetch quiz questions and option for a submodule (student-facing)
+// Fetch all quiz questions with their option for a submodule (student-facing)
     async getQuizBySubmodule(submoduleId) {
         const questions = await this.questionRepo.getQuizQuestionsBySubmodule(submoduleId);
 
@@ -55,7 +58,7 @@ export class QuizService {
     };
 
 
-// Fetch a single question with options (student-facing) 
+// Fetch single question with options (student-facing) 
     async getQuizQuestionWithOptions(questionId) {
         const question = await this.questionRepo.getQuizQuestionById(questionId);
         if (!question) 
@@ -78,6 +81,50 @@ export class QuizService {
 
         return correctOption;
     };
+    
+
+// Fetch single quiz question and its options for a given submodule(doc, video).
+    async getQuizQuestionForSubmodule(submoduleId) {
+
+        //Fetch submodule details to know its type (doc or video)
+        const submodule = await this.submoduleRepo.getSubmoduleById(submoduleId);
+
+        if (!submodule) {
+            throw new RecordNotFoundError("Submodule not found");
+        };
+
+        // 2. Fetch all quiz questions linked to this submodule
+        const questions = await this.questionRepo.getQuizQuestionsBySubmodule(submoduleId);
+
+        if (!questions || questions.length === 0) {
+            throw new RecordNotFoundError(`No quiz question found for this ${submodule.type}`);
+        };
+
+        //Pick a question based on submodule type 
+        let submoduleQuestion;
+
+        if (submodule.type === "document") {
+            submoduleQuestion = questions[0]; // first question for doc
+        } else if (submodule.type === "video") {
+            submoduleQuestion = questions[1];
+        } else {
+            submoduleQuestion = questions[0]; // default fallback
+        };
+
+        //Fetch options for that question
+        const options = await this.optionRepo.getQuizOptionsByQuestion(submoduleQuestion.id);
+
+        // Get correct answer for the question
+        const correctAnswer = await this.getCorrectOption(submoduleQuestion.id);
+
+        return {
+            submoduleType: submodule.type,
+            question: submoduleQuestion,
+            options,
+            answer: correctAnswer
+        };
+    };
+
 
 //Grade quiz from correct options
     async gradeQuiz(answers) {

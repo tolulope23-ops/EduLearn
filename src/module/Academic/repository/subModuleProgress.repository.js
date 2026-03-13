@@ -18,10 +18,6 @@ export class SubmoduleProgressRepository {
   async updateSubModuleProgress(studentId, submoduleId, data) {
     try {
 
-      if (data.downloaded === true){
-        data.downloadedAt = new Date();
-      };
-
       const [affectedRows] = await SubmoduleProgress.update(data, {
         where: { studentId, submoduleId },
       });
@@ -98,12 +94,13 @@ export class SubmoduleProgressRepository {
     return {
       studentId: progress.studentId,
       submoduleId: progress.submoduleId,
-      completed: progress.completed,
+      completed: progress.completedAt !== null,
+      completedAt: progress.completedAt ?? undefined,
       score: progress.score ?? undefined,
-      downloaded: progress.downloaded,
+      downloaded: progress.downloadedAt !== null,
       downloadedAt: progress.downloadedAt ?? undefined,
       createdAt: progress.createdAt,
       updatedAt: progress.updatedAt,
     };
-  }
-}
+  };
+};

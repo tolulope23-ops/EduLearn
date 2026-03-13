@@ -29,6 +29,7 @@ export class ModuleService{
         return await this.moduleRepo.createModule(data);
     };
 
+
     async getModule(moduleId) {
 
         const module = await this.moduleRepo.getModuleById(moduleId);
@@ -39,6 +40,7 @@ export class ModuleService{
         return module;
     };
 
+
     async getModulesByLesson(lessonId) {
 
         const lesson = await this.lessonRepo.getLessonById(lessonId);
@@ -48,6 +50,7 @@ export class ModuleService{
 
         return await this.moduleRepo.getModulesByLesson(lessonId);
     };
+
 
     async getModuleBySequence(lessonId, sequenceNumber) {
 
@@ -62,6 +65,7 @@ export class ModuleService{
         return module;
     };
 
+
     async updateModule(moduleId, updateData) {
 
         const module = await this.moduleRepo.getModuleById(moduleId);
@@ -72,6 +76,7 @@ export class ModuleService{
         return await this.moduleRepo.updateModule(moduleId, updateData);
     };
 
+
     async deleteModule(moduleId) {
 
         const module = await this.moduleRepo.getModuleById(moduleId);
@@ -81,4 +86,4 @@ export class ModuleService{
 
         return await this.moduleRepo.deleteModule(moduleId);
     };
-}
+};

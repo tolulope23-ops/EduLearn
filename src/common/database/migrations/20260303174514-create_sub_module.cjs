@@ -28,7 +28,7 @@ module.exports = {
       },
 
       type: {
-        type: Sequelize.STRING,
+        type: Sequelize.ENUM('document', 'video', 'quiz'),
         allowNull: false,
       },
 

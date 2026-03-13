@@ -1,3 +1,4 @@
+import { RecordNotFoundError } from "../../../common/error/domainError.error";
 import {ModuleProgressRepository} from "../repository/moduleProgress.repository";
 
 export class ModuleProgressService{
@@ -28,32 +29,30 @@ export class ModuleProgressService{
 // Update progress (completion, score, attempts)
     async updateModuleProgress(studentId, moduleId, progressData) {
 
-        // progressData can contain: completed, progress, score, attemptCount, completionDate
+        // progressData can contain: completed, progress, score, completionDate
         const updatedProgress = await this.moduleProgressRepo.updateModuleProgress(
             studentId,
             moduleId,
             progressData
         );
 
-        return updatedProgress;
+        return { Message: 'ModuleProgress Updated', data: updatedProgress };
     };
 
 
 //Increment attempt if quiz failed and retaken
     async incrementAttemptCount(studentId, moduleId) {
 
-        const progress = await this.moduleProgressRepo.getModuleProgress(
-            studentId,
-            moduleId
-        );
+        const progress = await this.moduleProgressRepo.getModuleProgress(studentId, moduleId);
+        if(!progress)
+            throw new RecordNotFoundError('Module not found');
 
-        const newCount = (progress?.attemptCount || 0) + 1;
+        if(progress.attemptCount >= 3)
+            throw new Error('Maximum attempt reached for this module');
 
-        return await this.moduleProgressRepo.updateModuleProgress(
-            studentId,
-            moduleId,
-            { attemptCount: newCount }
-        );
+        await this.moduleProgressRepo.incrementAttemptCount(studentId, moduleId);
+
+        return{ Message: 'Attempt Count incremented',  data: progress}
     };
 
 

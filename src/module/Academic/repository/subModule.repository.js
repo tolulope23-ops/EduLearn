@@ -13,7 +13,7 @@ export class SubModuleRepository {
     }
   };
 
-  // UPDATE
+
   async updateSubmodule(id, data) {
     try {
       const [affectedRows] = await SubModule.update(data, { where: { id } });
@@ -29,7 +29,8 @@ export class SubModuleRepository {
     }
   };
 
-  // DELETE
+
+
   async deleteSubmodule(id) {
     try {
       const deletedRows = await SubModule.destroy({ where: { id } });
@@ -45,7 +46,6 @@ export class SubModuleRepository {
   };
 
 
-  // GET BY ID
   async getSubmoduleById(id) {
     try {
       const submodule = await SubModule.findByPk(id);
@@ -56,7 +56,6 @@ export class SubModuleRepository {
   };
 
 
-  // GET ALL
   async getAllSubmodules() {
     try {
       const submodules = await SubModule.findAll({
@@ -71,7 +70,6 @@ export class SubModuleRepository {
   };
 
 
-  // GET BY MODULE
   async getSubmodulesByModule(moduleId) {
     try {
       const submodules = await SubModule.findAll({
@@ -86,7 +84,6 @@ export class SubModuleRepository {
   };
 
 
-  // GET BY SEQUENCE
   async getSubmoduleBySequence(moduleId, sequenceNumber) {
     try {
       const submodule = await SubModule.findOne({

@@ -14,19 +14,14 @@ const SubmoduleProgress = sequelize.define("SubmoduleProgress",{
     primaryKey: true,
   },
 
-  completed: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false,
+  completedAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
   },
 
   score: {
     type: DataTypes.INTEGER,
     validate: { min: 0, max: 100 },
-  },
-
-  downloaded: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false,
   },
 
   downloadedAt: {
