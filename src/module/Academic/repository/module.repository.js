@@ -4,17 +4,11 @@ import { RecordNotFoundError } from "../../../common/error/domainError.error.js"
 
 export class ModuleRepository {
 
-  // CREATE
-  async createModule(data) {
-    try {
-      const module = await Module.create(data);
-      return this.mapToModuleEntity(module);
-    } catch (error) {
-      handleSequelizeError(error);
-    }
-  };
-
-  // UPDATE
+async createModule(data) {
+  const module = await Module.create(data);
+  return this.mapToModuleEntity(module);
+};
+  
   async updateModule(id, data) {
     try {
       const [affectedRows] = await Module.update(data, { where: { id } });
@@ -30,7 +24,7 @@ export class ModuleRepository {
     }
   };
 
-  // DELETE
+
   async deleteModule(id) {
     try {
       const deletedRows = await Module.destroy({ where: { id } });
@@ -53,17 +47,17 @@ export class ModuleRepository {
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
 
 
   async getAllModules() {
-    try {
-      const modules = await Module.findAll();
-      return modules.map(m => this.mapToModuleEntity(m));
-    } catch (error) {
-      handleSequelizeError(error);
-    }
+    const modules = await Module.findAll({
+      order: [["sequenceNumber", "ASC"]],
+    });
+
+    return modules.map(module => this.mapToModuleEntity(module));
   };
+  
 
   // GET MODULES BY LESSON
   async getModulesByLesson(lessonId) {
@@ -73,7 +67,7 @@ export class ModuleRepository {
         order: [["sequenceNumber", "ASC"]],
       });
 
-      return modules.map(m => this.mapToModuleEntity(m));
+      return modules.map(module => this.mapToModuleEntity(module));
     } catch (error) {
       handleSequelizeError(error);
     }
@@ -92,18 +86,20 @@ export class ModuleRepository {
     }
   };
 
-  // HELPER
-  mapToModuleEntity(modules) {
-    if (!modules) return null;
+
+  mapToModuleEntity(module) {
+    if (!module) return null;
+
+    const data = module.toJSON ? module.toJSON() : module;
 
     return {
-      id: modules.id,
-      lessonId: modules.lessonId,
-      title: modules.title,
-      description: modules.description ?? undefined,
-      sequenceNumber: modules.sequenceNumber,
-      createdAt: modules.createdAt,
-      updatedAt: modules.updatedAt,
+      id: data.id,
+      lessonId: data.lessonId,
+      title: data.title,
+      description: data.description,
+      sequenceNumber: data.sequenceNumber,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt
     };
-  }
-}
+  };
+};

@@ -28,7 +28,7 @@ module.exports = {
       },
 
       type: {
-        type: Sequelize.STRING,
+        type: Sequelize.ENUM('document', 'video', 'quiz'),
         allowNull: false,
       },
 
@@ -44,11 +44,11 @@ module.exports = {
 
       downloadable: {
         type: Sequelize.BOOLEAN,
-        defaultValue: false,
+        defaultValue: true,
       },
 
       contentSize: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         allowNull: true,
       },
 

@@ -7,13 +7,13 @@ export class SubModuleRepository {
   async createSubmodule(data) {
     try {
       const submodule = await SubModule.create(data);
-      return this.mapToEntity(submodule);
+      return this.mapToSubModuleEntity(submodule);
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
 
-  // UPDATE
+
   async updateSubmodule(id, data) {
     try {
       const [affectedRows] = await SubModule.update(data, { where: { id } });
@@ -23,13 +23,14 @@ export class SubModuleRepository {
       }
 
       const updatedSubmodule = await SubModule.findByPk(id);
-      return this.mapToEntity(updatedSubmodule);
+      return this.mapToSubModuleEntity(updatedSubmodule);
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
 
-  // DELETE
+
+
   async deleteSubmodule(id) {
     try {
       const deletedRows = await SubModule.destroy({ where: { id } });
@@ -42,29 +43,33 @@ export class SubModuleRepository {
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
 
-  // GET BY ID
+
   async getSubmoduleById(id) {
     try {
       const submodule = await SubModule.findByPk(id);
-      return submodule ? this.mapToEntity(submodule) : null;
+      return submodule ? this.mapToSubModuleEntity(submodule) : null;
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
 
-  // GET ALL
+
   async getAllSubmodules() {
     try {
-      const submodules = await SubModule.findAll();
-      return submodules.map(this.mapToEntity);
+      const submodules = await SubModule.findAll({
+        order: [["sequenceNumber", "ASC"]],
+      });
+
+      return submodules.map((submodule) => this.mapToSubModuleEntity(submodule));
+      
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
 
-  // GET BY MODULE
+
   async getSubmodulesByModule(moduleId) {
     try {
       const submodules = await SubModule.findAll({
@@ -72,27 +77,28 @@ export class SubModuleRepository {
         order: [["sequenceNumber", "ASC"]],
       });
 
-      return submodules.map(this.mapToEntity);
+      return submodules.map((submodule) => this.mapToSubModuleEntity(submodule));
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
 
-  // GET BY SEQUENCE
+
   async getSubmoduleBySequence(moduleId, sequenceNumber) {
     try {
       const submodule = await SubModule.findOne({
         where: { moduleId, sequenceNumber },
       });
 
-      return submodule ? this.mapToEntity(submodule) : null;
+      return submodule ? this.mapToSubModuleEntity(submodule) : null;
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
+  
 
-  // HELPER: Map to domain entity
-  mapToEntity(submodule) {
+// HELPER: Map to Domain Entity
+  mapToSubModuleEntity(submodule) {
     if (!submodule) return null;
 
     return {

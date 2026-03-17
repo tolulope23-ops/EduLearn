@@ -14,6 +14,12 @@ const ModuleProgress = sequelize.define("ModuleProgress", {
       primaryKey: true,
     },
 
+    progress: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      validate: { min: 0, max: 100 },
+    },
+
     completed: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,

@@ -44,11 +44,7 @@ export class ClassLevelRepository {
   async getClassLevelByName(name) {
     try {
       const classLevel = await ClassLevel.findOne({ 
-        where: {
-          name: {
-            [Op.iLike]: name, // case-insensitive
-          },
-        }
+        where: {name}
       });
       return classLevel ? this.mapToClassLevelEntity(classLevel) : null;
     } catch (error) {

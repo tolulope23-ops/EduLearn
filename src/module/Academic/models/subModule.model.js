@@ -35,7 +35,7 @@ const SubModule = sequelize.define("SubModule", {
 
     downloadable: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
+      defaultValue: true,
     },
 
     contentSize: {

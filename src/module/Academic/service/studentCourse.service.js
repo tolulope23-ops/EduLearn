@@ -1,5 +1,5 @@
-import { CourseRepository } from "../repository/course.repository";
-import { StudentCourseRepository } from "../repository/studentCourses.repository";
+import { CourseRepository } from "../repository/course.repository.js";
+import { StudentCourseRepository } from "../repository/studentCourses.repository.js";
 
 export class StudentCourseService{
     /**
@@ -10,12 +10,12 @@ export class StudentCourseService{
     constructor(courseRepo, studentCourseRepo){
         this.courseRepo = courseRepo;
         this.studentCourseRepo = studentCourseRepo;
-    }
+    };
 
     async assignCourseNameToIds(courseNames){
         if (!Array.isArray(courseNames) || courseNames.length === 0) {
             throw new Error("courseNames not selected");
-        }
+        };
 
         const coursesDb = await this.courseRepo.getCoursesByNames(courseNames);
         
@@ -28,11 +28,11 @@ export class StudentCourseService{
         const courseIds = await this.assignCourseNameToIds(courseNames);
 
         // Prepare array for bulk insert
-        courseArray = courseIds.map(courseId => ({
+        const courseArray = courseIds.map(courseId => ({
             studentId, courseId
         }));
 
         //Save to DB
         return await this.studentCourseRepo.bulkCreateStudentCourses(courseArray);
     };
-}
+};

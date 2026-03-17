@@ -28,19 +28,14 @@ module.exports = {
         onDelete: 'CASCADE',
       },
 
-      completed: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
+      completedAt: {
+        type: Sequelize.DATE,
+        allowNull: true,
       },
 
       score: {
         type: Sequelize.INTEGER,
         allowNull: true,
-      },
-
-      downloaded: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
       },
 
       downloadedAt: {

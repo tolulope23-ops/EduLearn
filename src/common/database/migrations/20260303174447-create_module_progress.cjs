@@ -28,6 +28,16 @@ module.exports = {
         onDelete: 'CASCADE',
       },
 
+      progress: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+        validate: {
+          min: 0,
+          max: 100,
+        },
+      },
+
       completed: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,

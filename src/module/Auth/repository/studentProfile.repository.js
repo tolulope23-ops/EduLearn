@@ -24,6 +24,24 @@ export class StudentProfileRepository {
     }
   };
 
+
+//Get studentId using userId
+  async getStudentIdByUserId(userId) {
+    try {
+
+      const profile = await StudentProfile.findOne({
+        where: { userId },
+        attributes: ["id"]
+      });
+
+      return profile ? profile.id : null;
+
+    } catch (error) {
+      handleSequelizeError(error);
+    }
+  };
+  
+
   async getProfileByStudentId(id) {
     try {
       const profile = await StudentProfile.findByPk(id);
