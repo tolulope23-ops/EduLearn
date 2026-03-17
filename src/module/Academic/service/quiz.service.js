@@ -149,9 +149,9 @@ export class QuizService {
         let submoduleQuestion;
 
         if (submodule.type === "document") {
-            submoduleQuestion = questions[3]; // first question for doc
+            submoduleQuestion = questions[1]; // first question for doc
         } else if (submodule.type === "video") {
-            submoduleQuestion = questions[8];
+            submoduleQuestion = questions[9];
         } else {
             submoduleQuestion = questions[0]; // default fallback
         };
