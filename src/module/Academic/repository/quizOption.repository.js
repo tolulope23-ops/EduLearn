@@ -68,7 +68,7 @@ export class QuizOptionRepository {
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
 
   // GET ALL OPTIONS FOR A QUESTION
   async getQuizOptionsByQuestion(questionId) {

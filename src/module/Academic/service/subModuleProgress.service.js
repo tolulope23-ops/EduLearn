@@ -1,4 +1,4 @@
-import { SubmoduleProgressRepository } from "../repository/submoduleProgress.repository.js";
+import { SubmoduleProgressRepository } from "../repository/subModuleProgress.repository.js";
 import { RecordNotFoundError } from "../../../common/error/domainError.error.js";
 
 export class SubmoduleProgressService {

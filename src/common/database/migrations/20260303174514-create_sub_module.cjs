@@ -48,7 +48,7 @@ module.exports = {
       },
 
       contentSize: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         allowNull: true,
       },
 

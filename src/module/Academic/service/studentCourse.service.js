@@ -1,5 +1,5 @@
-import { CourseRepository } from "../repository/course.repository";
-import { StudentCourseRepository } from "../repository/studentCourses.repository";
+import { CourseRepository } from "../repository/course.repository.js";
+import { StudentCourseRepository } from "../repository/studentCourses.repository.js";
 
 export class StudentCourseService{
     /**

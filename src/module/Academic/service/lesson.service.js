@@ -1,8 +1,8 @@
-import { RecordNotFoundError } from "../../../common/error/domainError.error";
-import { ClassLevelRepository } from "../repository/classLevel.repository";
-import { CourseRepository } from "../repository/course.repository";
-import { LessonRepository } from "../repository/lesson.repository";
-import { EnrollmentService } from "./enrollment.services";
+import { RecordNotFoundError } from "../../../common/error/domainError.error.js";
+import { ClassLevelRepository } from "../repository/classLevel.repository.js";
+import { CourseRepository } from "../repository/course.repository.js";
+import { LessonRepository } from "../repository/lesson.repository.js";
+import { EnrollmentService } from "./enrollment.services.js";
 
 export class LessonService{
     /**
@@ -38,7 +38,8 @@ export class LessonService{
             sequenceNumber
         };
 
-        await this.lessonRepo.createLesson(data);
+       const lesson =  await this.lessonRepo.createLesson(data);
+       return {message: 'Lesson created successfully', data: lesson};
     };
 
 
@@ -48,7 +49,7 @@ export class LessonService{
         if (!lesson) 
             throw new RecordNotFoundError(`Lesson not found`);
 
-        return lesson;
+        return {message: 'Retrieved successfully', data: lesson};
     };
 
 
@@ -71,18 +72,7 @@ export class LessonService{
 
         if (!lesson) throw new RecordNotFoundError("Lesson not found");
 
-        return lesson;
-    };
-
-
-    async getLessonsForStudent(userId) {
-        const enrollment = await this.enrollmentService.getStudentEnrollment(userId);
-
-        const lessons = await this.lessonRepo.getLessonsByCourseAndClassLevel(
-            enrollment.courseIds, enrollment.classLevelId
-        );
-
-        return lessons;
+        return {message: 'Lesson by CourseName, classLevel, Sequence', data: lesson};
     };
 
 
@@ -116,8 +106,11 @@ export class LessonService{
         if (!lesson)
             throw new RecordNotFoundError("Lesson not found");
 
-        return await this.lessonRepo.updateLesson(lessonId, updatePayload);
+        const updatedLesson = await this.lessonRepo.updateLesson(lessonId, updatePayload);
+
+        return{message: 'Lesson Updated Successfully', data: updatedLesson};
     };
+
 
     async deleteLesson(lessonId) {
 
@@ -128,4 +121,5 @@ export class LessonService{
 
         return await this.lessonRepo.deleteLesson(lessonId);
     };
+
 };

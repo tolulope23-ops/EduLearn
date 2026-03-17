@@ -1,6 +1,6 @@
-import { RecordNotFoundError } from "../../../common/error/domainError.error";
-import { LessonRepository } from "../repository/lesson.repository";
-import { ModuleRepository } from "../repository/module.repository";
+import { RecordNotFoundError } from "../../../common/error/domainError.error.js";
+import { LessonRepository } from "../repository/lesson.repository.js";
+import { ModuleRepository } from "../repository/module.repository.js";
 
 export class ModuleService{
     /**
@@ -26,7 +26,10 @@ export class ModuleService{
             sequenceNumber
         };
 
-        return await this.moduleRepo.createModule(data);
+        const module = await this.moduleRepo.createModule(data);
+        console.log("service", module);
+
+        return { message: 'Module created successfully', data: module};
     };
 
 
@@ -37,7 +40,7 @@ export class ModuleService{
         if (!module)
             throw new RecordNotFoundError("Module not found");
 
-        return module;
+        return {message: 'Module Retrieved successfully', data: module};
     };
 
 
@@ -48,7 +51,9 @@ export class ModuleService{
         if (!lesson)
             throw new RecordNotFoundError("Lesson not found");
 
-        return await this.moduleRepo.getModulesByLesson(lessonId);
+        const modules = await this.moduleRepo.getModulesByLesson(lessonId);
+
+        return {message:'Modules for Lesson', data: modules};
     };
 
 
@@ -62,7 +67,7 @@ export class ModuleService{
         if (!module)
             throw new RecordNotFoundError("Module not found");
 
-        return module;
+        return { message: 'Module by sequence', data: module};
     };
 
 

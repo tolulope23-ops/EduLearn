@@ -1,6 +1,6 @@
-import { RecordNotFoundError } from "../../../common/error/domainError.error";
-import { ModuleRepository } from "../repository/module.repository";
-import { SubModuleRepository } from "../repository/subModule.repository";
+import { RecordNotFoundError } from "../../../common/error/domainError.error.js";
+import { ModuleRepository } from "../repository/module.repository.js";
+import { SubModuleRepository } from "../repository/subModule.repository.js";
 
 export class SubModuleService {
     /**

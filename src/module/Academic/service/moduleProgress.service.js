@@ -1,5 +1,5 @@
-import { RecordNotFoundError } from "../../../common/error/domainError.error";
-import {ModuleProgressRepository} from "../repository/moduleProgress.repository";
+import { RecordNotFoundError } from "../../../common/error/domainError.error.js";
+import {ModuleProgressRepository} from "../repository/moduleProgress.repository.js";
 
 export class ModuleProgressService{
     /**

@@ -10,6 +10,7 @@ import { DuplicateRecordError, RecordNotFoundError } from "./domainError.error.j
 import { DomainError } from "./appError.error.js";
 
 export const handleSequelizeError = (error) => {
+    console.error("Sequelize error:", error);
 
   if (error instanceof UniqueConstraintError) {
     throw new DuplicateRecordError("Duplicate value detected");
@@ -30,6 +31,11 @@ export const handleSequelizeError = (error) => {
   if (error instanceof SequelizeDatabaseError) {
     throw new DomainError("Database operation failed");
   }
+
+  if (error instanceof SequelizeDatabaseError) {
+    console.error("REAL DATABASE ERROR:", error);
+    throw new DomainError(error.message);
+  };
 
   throw error;
 };

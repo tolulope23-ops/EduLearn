@@ -2,35 +2,76 @@ import { QuizQuestionRepository } from "../repository/quizQuestion.repository.js
 import { QuizOptionRepository } from "../repository/quizOption.repository.js";
 import { RecordNotFoundError } from "../../../common/error/domainError.error.js";
 import { SubModuleRepository } from "../repository/subModule.repository.js";
+import { SubModuleService } from "./subModule.service.js";
+import { ModuleProgressService } from "./moduleProgress.service.js";
+import { LearningProgress } from "./learningProgress.service.js";
 
 export class QuizService {
   /**
    * @param {QuizQuestionRepository} questionRepo
    * @param {QuizOptionRepository} optionRepo
    * @param {SubModuleRepository} submoduleRepo
+   * @param {SubModuleService} submoduleService
+   * @param {ModuleProgressService} moduleProgressService
+   * @param {LearningProgress} learningProgressService
    */
 
-  constructor(questionRepo, optionRepo, submoduleRepo) {
+  constructor(questionRepo, optionRepo, submoduleRepo, submoduleService, moduleProgressService, learningProgressService) {
     this.questionRepo = questionRepo;
     this.optionRepo = optionRepo;
     this.submoduleRepo = submoduleRepo;
+    this.submoduleService = submoduleService;
+    this.moduleProgressService = moduleProgressService;
+    this.learningProgressService = learningProgressService;
   };
 
-// Create a quiz question (Admin)
-    async createQuizQuestion(submoduleId, question) {
-        return await this.questionRepo.createQuizQuestion({
-            submoduleId,
-            question: question,
-        });
+// Create bulk quiz question (Admin)
+    async createBulkQuizQuestions(questionsArray) {
+        if (!Array.isArray(questionsArray) || questionsArray.length === 0) {
+            throw new Error("Questions array is required");
+        }
+
+        // Map each object to match repo field names
+        const questions = questionsArray.map(q => ({
+            submoduleId: q.submoduleId,
+            question: q.questionText,
+            sequenceNumber: q.sequenceNumber ?? null
+        }));
+
+        // Call repo once with the full array
+        const createdQuestions = await this.questionRepo.bulkCreateQuizQuestions(questions);
+
+        return createdQuestions;
     };
 
+// Update quiz question
+    updateQuizQuestion = async (questionId, updateData) => {
+        return await this.questionRepo.updateQuizQuestion(questionId, updateData);
+    };
+
+// Delete quiz question
+    deleteQuizQuestion = async (id) => {
+        return await this.questionRepo.deleteQuizQuestion(id);
+    };
+
+// Update quiz option
+    updateQuizOption = async (id, updateData) => {
+        return await this.quizOptionRepo.updateQuizOption(id, updateData);
+    };
+
+// Delete quiz option
+    deleteQuizOption = async (id) => {
+        return await this.quizOptionRepo.deleteQuizOption(id);
+    };
+
+
 // Add options to a quiz question (Admin)
-    async addQuizOptions(questionId, options) {
+    async addQuizOptions(optionArray) {
 
     // options: [{ option: 'A', isCorrect: true }, { option: 'B', isCorrect: false }]
-        const optionsArray = options.map(opt => ({
-            questionId,
-            option: opt.option,
+        const optionsArray = optionArray.map(opt => ({
+            questionId: opt.questionId,
+            option: opt.optionText,
             isCorrect: opt.isCorrect,
         }));
 
@@ -88,13 +129,17 @@ export class QuizService {
 
         //Fetch submodule details to know its type (doc or video)
         const submodule = await this.submoduleRepo.getSubmoduleById(submoduleId);
+        console.log(submodule);
+        
 
         if (!submodule) {
             throw new RecordNotFoundError("Submodule not found");
         };
 
-        // 2. Fetch all quiz questions linked to this submodule
+        //Fetch all quiz questions linked to this submodule
         const questions = await this.questionRepo.getQuizQuestionsBySubmodule(submoduleId);
+        console.log(questions);
+        
 
         if (!questions || questions.length === 0) {
             throw new RecordNotFoundError(`No quiz question found for this ${submodule.type}`);
@@ -104,9 +149,9 @@ export class QuizService {
         let submoduleQuestion;
 
         if (submodule.type === "document") {
-            submoduleQuestion = questions[0]; // first question for doc
+            submoduleQuestion = questions[3]; // first question for doc
         } else if (submodule.type === "video") {
-            submoduleQuestion = questions[1];
+            submoduleQuestion = questions[8];
         } else {
             submoduleQuestion = questions[0]; // default fallback
         };
@@ -114,14 +159,16 @@ export class QuizService {
         //Fetch options for that question
         const options = await this.optionRepo.getQuizOptionsByQuestion(submoduleQuestion.id);
 
+
         // Get correct answer for the question
         const correctAnswer = await this.getCorrectOption(submoduleQuestion.id);
 
         return {
-            submoduleType: submodule.type,
-            question: submoduleQuestion,
-            options,
-            answer: correctAnswer
+            // submoduleType: submodule.type,
+            question: submoduleQuestion.question,
+            options: options.map(opt => opt.option),
+            answer: correctAnswer.option
+
         };
     };
 
@@ -158,6 +205,45 @@ export class QuizService {
             wrongAnswers,
             percentage,
             wrongQuestions
+        };
+    };
+
+
+    async submitQuiz(studentId, submoduleId, answers) {
+
+        //Grade the quiz
+        const result = await this.gradeQuiz(answers);
+
+        const passed = result.percentage >= 70;
+
+        //Get submodule to know module
+        const submodule = await this.submoduleService.getSubmoduleById(submoduleId);
+
+        if (!submodule)
+            throw new RecordNotFoundError("Submodule not found");
+
+        const moduleId = submodule.moduleId;
+
+        //Increment attempt count for student first attempt
+        const module = await this.learningProgressService.getModuleProgress(studentId, moduleId);
+        if (module.attemptCount === 0){
+            await this.moduleProgressService.incrementAttemptCount(studentId, moduleId)
+        };
+
+        //If passed mark submodule complete
+        if (passed) {
+            await this.learningProgressService.markSubModuleComplete(studentId, submoduleId);
+        }else if(module.attemptCount >= 3){
+            await this.learningProgressService.markSubModuleComplete(studentId, submoduleId);
+        };
+
+        //Return result
+        return {
+            message: 'Quiz Submitted Successfully',
+            passed: passed,
+            percentage: result.percentage,
+            CorrectAnswer: result.correctAnswers,
+            attemptCount: module.attemptCount
         };
     };
 };

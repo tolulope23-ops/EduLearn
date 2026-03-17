@@ -97,7 +97,7 @@ export class SubModuleRepository {
   };
   
 
-  // HELPER: Map to Domain Entity
+// HELPER: Map to Domain Entity
   mapToSubModuleEntity(submodule) {
     if (!submodule) return null;
 

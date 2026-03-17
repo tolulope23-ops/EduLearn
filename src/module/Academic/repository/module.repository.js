@@ -4,15 +4,10 @@ import { RecordNotFoundError } from "../../../common/error/domainError.error.js"
 
 export class ModuleRepository {
 
-  async createModule(data) {
-    try {
-      const module = await Module.create(data);
-      return this.mapToModuleEntity(module);
-    } catch (error) {
-      handleSequelizeError(error);
-    }
-  };
-
+async createModule(data) {
+  const module = await Module.create(data);
+  return this.mapToModuleEntity(module);
+};
   
   async updateModule(id, data) {
     try {
@@ -91,18 +86,20 @@ export class ModuleRepository {
     }
   };
 
-  // HELPER
-  mapToModuleEntity(modules) {
-    if (!modules) return null;
+
+  mapToModuleEntity(module) {
+    if (!module) return null;
+
+    const data = module.toJSON ? module.toJSON() : module;
 
     return {
-      id: modules.id,
-      lessonId: modules.lessonId,
-      title: modules.title,
-      description: modules.description ?? undefined,
-      sequenceNumber: modules.sequenceNumber,
-      createdAt: modules.createdAt,
-      updatedAt: modules.updatedAt,
+      id: data.id,
+      lessonId: data.lessonId,
+      title: data.title,
+      description: data.description,
+      sequenceNumber: data.sequenceNumber,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt
     };
-  }
-}
+  };
+};

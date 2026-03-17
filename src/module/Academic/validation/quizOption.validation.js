@@ -1,11 +1,11 @@
 import { z } from "zod";
 
-export const createQuizOptionSchema = z.object({
+export const quizOptionSchema = z.object({
   questionId: z
     .string()
     .uuid("Invalid questionId"),
 
-  option: z
+  optionText: z
     .string()
     .trim()
     .min(1, "Option text is required")
@@ -16,4 +16,9 @@ export const createQuizOptionSchema = z.object({
     .optional(),
 });
 
-export const updateQuizOptionSchema = createQuizOptionSchema.partial();
+
+// Schema for array of options
+export const createQuizOptionSchema = z.array(quizOptionSchema).nonempty("Questions array cannot be empty");
+
+export const updateQuizOptionSchema = z.array(quizOptionSchema.partial())
+  .nonempty("Questions array cannot be empty");
