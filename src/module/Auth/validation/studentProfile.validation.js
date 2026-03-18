@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+const allowedClassLevels = [
+  "SENIOR", "JUNIOR"
+];
+
 const baseStudentProfileSchema = z.object({
   fullName: z.string()
     .trim()
