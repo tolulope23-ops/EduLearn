@@ -80,7 +80,7 @@ export class UserAuthController {
 
   verifyEmail = async (req, res, next) => {
     try {
-      const { token } = req.query;
+      const token = req.body;
 
       if (!token || typeof token !== "string") {
         throw new BadRequestError("Verification token is required");

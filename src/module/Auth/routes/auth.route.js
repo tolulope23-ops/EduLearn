@@ -27,7 +27,7 @@ router.post('/register', validationMiddleware(signupSchema), authController.sign
 router.post('/login', validationMiddleware(loginSchema), authController.login);
 
 // Email verification (from link sent in email)
-router.get('/verify-email', authController.verifyEmail);
+router.post('/verify-email', authController.verifyEmail);
 
 //Resend Email verification
 router.post('/resend-verification', resendEmailLimiter, authController.resendEmailVerification);
