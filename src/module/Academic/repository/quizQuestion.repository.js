@@ -71,11 +71,10 @@ export class QuizQuestionRepository {
   };
 
 
-  // GET ALL BY SUBMODULE
-  async getQuizQuestionsBySubmodule(submoduleId) {
+  // GET ALL BY SUBMODULE ---- Improvement(add moduleId in quiz question model)
+  async getQuizQuestionsBySubmodule() {
     try {
       const questions = await QuizQuestion.findAll({
-        where: { submoduleId },
         order: [["createdAt", "ASC"]],
     });
     // return this.mapToQuizQuestionEntity(questions);
@@ -94,8 +93,6 @@ export class QuizQuestionRepository {
       id: question.id,
       submoduleId: question.submoduleId,
       question: question.question,
-      submodule: question.submodule ?? null,
-      options: question.options ?? [],
       createdAt: question.createdAt,
       updatedAt: question.updatedAt,
     };

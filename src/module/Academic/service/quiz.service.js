@@ -88,14 +88,19 @@ export class QuizService {
         };
 
         // Fetch options for each question
-        const quizWithOptions = await Promise.all(
+        const quiz = await Promise.all(
             questions.map(async (q) => {
                 const options = await this.optionRepo.getQuizOptionsByQuestion(q.id);
-                return { ...q, options };
+
+                //Return option text, not timestamp
+                return {
+                    question: q.question,
+                    options: options.map(opt => opt.option)
+                };
             })
         );
 
-        return quizWithOptions;
+        return quiz;
     };
 
 
@@ -129,36 +134,24 @@ export class QuizService {
 
         //Fetch submodule details to know its type (doc or video)
         const submodule = await this.submoduleRepo.getSubmoduleById(submoduleId);
-        console.log(submodule);
-        
+         
 
         if (!submodule) {
             throw new RecordNotFoundError("Submodule not found");
         };
 
         //Fetch all quiz questions linked to this submodule
-        const questions = await this.questionRepo.getQuizQuestionsBySubmodule(submoduleId);
-        console.log(questions);
+        const question = await this.questionRepo.getQuizQuestionsBySubmodule(submoduleId);
         
 
-        if (!questions || questions.length === 0) {
+        if (!question || question.length === 0) {
             throw new RecordNotFoundError(`No quiz question found for this ${submodule.type}`);
         };
 
-        //Pick a question based on submodule type 
-        let submoduleQuestion;
-
-        if (submodule.type === "document") {
-            submoduleQuestion = questions[3]; // first question for doc
-        } else if (submodule.type === "video") {
-            submoduleQuestion = questions[8];
-        } else {
-            submoduleQuestion = questions[0]; // default fallback
-        };
-
-        //Fetch options for that question
+        const submoduleQuestion = question[0];
+        
         const options = await this.optionRepo.getQuizOptionsByQuestion(submoduleQuestion.id);
-
+        
 
         // Get correct answer for the question
         const correctAnswer = await this.getCorrectOption(submoduleQuestion.id);

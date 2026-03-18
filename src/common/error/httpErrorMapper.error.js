@@ -1,4 +1,4 @@
-// This maps domain → HTTP.
+// This maps domain Error
 import { 
     DuplicateRecordError, RecordNotFoundError,
     InvalidCredentialsError, MissingIdentifierError, 
@@ -9,7 +9,8 @@ import { DomainError } from "./appError.error.js";
 import { HttpError } from "./httpError.error.js";
 
 export const mapToHttpError = (error) => {
-
+  console.log(error);
+  
   if (error instanceof DuplicateRecordError) {
     return new HttpError(error.message, 409);
   }
