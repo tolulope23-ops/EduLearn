@@ -44,7 +44,7 @@ export class UserAuthVerificationService {
 
     const path = type === "EMAIL_VERIFICATION" ? "verify-email" : "reset-password";
 
-    const verificationLink = `${FRONTEND_URL}/api/v1/auth/${path}?token=${rawToken}`;
+    const verificationLink = `${FRONTEND_URL}/${path}?token=${rawToken}`;
 
     await this.emailService.sendVerification(email, type, verificationLink, name);
   };

@@ -7,8 +7,7 @@ const errorHandler = (err, req, res, next) => {
 
   const response = {
     status: "error",
-    message: httpError.message,
-    err
+    message: httpError.message
   };
 
   // Only add detailed info in development
