@@ -9,11 +9,9 @@ const router = express.Router();
 
 router.post("/create", validateRequest(createSubmoduleSchema), submoduleControllerInstance.createSubModule);
 
-// Get submodule by id
-router.get("/:subModuleId", submoduleControllerInstance.getSubModule);
+router.get("/:subModuleId", submoduleControllerInstance.getSubModule);  // Get submodule by id  
 
-// Get submodules in module
-router.get("/module/:moduleId", submoduleControllerInstance.getSubModulesByModule);
+router.get("/all/:moduleId", submoduleControllerInstance.getSubModulesByModule); //Get all Submodules in a module
 
 // Get submodule by sequence
 router.get("/sequence/find", submoduleControllerInstance.getSubModuleBySequence);

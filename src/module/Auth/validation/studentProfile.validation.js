@@ -25,6 +25,11 @@ const baseStudentProfileSchema = z.object({
   classLevel: z.string()
     .trim()
     .min(1, "Class level cannot be empty")
+    .transform((val) => val.toUpperCase())
+    .refine((val) => allowedClassLevels.includes(val), {
+      message: "Invalid class level",
+    })
+    
 });
 
 export const updateStudentProfileSchema = baseStudentProfileSchema.partial();
