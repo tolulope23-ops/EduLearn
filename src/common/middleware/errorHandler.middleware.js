@@ -8,8 +8,7 @@ const errorHandler = (err, req, res, next) => {
   const response = {
     status: "error",
     message: httpError.message,
-    error: httpError.cause,
-    method: httpError.name
+    err
   };
 
   // Only add detailed info in development
