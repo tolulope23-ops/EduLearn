@@ -7,9 +7,9 @@ const router = express.Router();
 
 router.post("/create", validateRequest(createModuleSchema), moduleControllerInstance.createModule);
 
-router.get("/:moduleId", moduleControllerInstance.getModule);
+router.get("/:moduleId", moduleControllerInstance.getModule); //Get a single module in a lesson
 
-router.get("/lesson/:lessonId", moduleControllerInstance.getModulesByLesson);
+router.get("/all/:lessonId", moduleControllerInstance.getModulesByLesson); //Get all module in a lesson
 
 router.get("/sequence/find", moduleControllerInstance.getModuleBySequence);
 

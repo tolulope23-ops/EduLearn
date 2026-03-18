@@ -52,6 +52,20 @@ export class LessonService{
         return {message: 'Retrieved successfully', data: lesson};
     };
 
+    // Get all lessons
+    async getAllLessons() {
+        const lessons = await this.lessonRepo.getAllLessons();
+
+        if (!lessons || lessons.length === 0) {
+            throw new RecordNotFoundError("No lessons found");
+        }
+
+        return {
+            message: "All lessons retrieved successfully",
+            data: lessons
+        };
+    };
+
 
     async getLessonBySequence(courseName, classLevelName, sequenceNumber) {
         const course = await this.courseRepo.getCourseByName(courseName);

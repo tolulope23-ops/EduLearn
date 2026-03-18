@@ -30,8 +30,8 @@ export class QuizController {
             const { questionId  } = req.params;
             const updateData = req.body;
 
-            console.log(questionId);
-            console.log(updateData);
+            // console.log(questionId);
+            // console.log(updateData);
             
 
             const updatedQuestion = await this.quizService.updateQuizQuestion(questionId, updateData);

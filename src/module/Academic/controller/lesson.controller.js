@@ -48,6 +48,22 @@ export class LessonController {
     };
   };
 
+  // Get all lessons
+  getAllLessons = async (req, res, next) => {
+    try {
+      
+      const lessons = await this.lessonService.getAllLessons();
+
+      return res.status(200).json({
+        message: lessons.message,
+        data: lessons.data
+      });
+
+    } catch (error) {
+      next(error);
+    }
+  };
+
 // Get lesson by sequence
   getLessonBySequence = async (req, res, next) => {
     try {

@@ -20,7 +20,7 @@ router.delete("/:optionId", quizControllerInstance.deleteQuizOption);// Delete a
 
 
 // Student-facing Routes
-router.get("/submodule/:submoduleId", quizControllerInstance.getQuizBySubmodule); // fetch all questions with options for a submodule
+router.get("/module-all/:submoduleId", quizControllerInstance.getQuizBySubmodule); // fetch all questions with options for a submodule
 router.get("/question/:questionId", quizControllerInstance.getQuizQuestionWithOptions); // fetch single question with options
 router.post("/submit", quizControllerInstance.submitQuiz); // submit quiz answers
 

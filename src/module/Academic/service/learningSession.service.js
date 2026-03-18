@@ -29,54 +29,57 @@ export class LearningSession{
     async startLearning(userId){
 
         //Get student enrollment
-        const enrollment = await this.enrollmentService.getStudentEnrollment(userId)
+        const enrollment = await this.enrollmentService.getStudentEnrollment(userId);
         
-        const { studentId, classLevelId, courseIds } = enrollment;
+        
+        const { classLevelId, courseIds } = enrollment;
 
         //Get Science course first
         const scienceCourse = await this.CourseRepo.getCourseByName("SCIENCE");
+    
 
         let selectedCourseId;
 
         if(scienceCourse && courseIds.includes(scienceCourse.id))
             selectedCourseId = scienceCourse.id;
-        else{
-            selectedCourseId = courseIds[0];
+        else {
+            selectedCourseId = scienceCourse.id;
         };
 
         //Get student first lesson
         const lesson = await this.lessonRepo.getLessonsByCourseAndClassLevel(
             [selectedCourseId], classLevelId
         );
+        
 
         if(!lesson || lesson.length === 0)
             throw new RecordNotFoundError("No lessons found");
 
         const firstLesson = lesson[0];
-
+        
 
         //Get first module
         const modules = await this.moduleService.getModulesByLesson(firstLesson.id);
+        
 
         if(!modules || modules.length === 0)
         throw new RecordNotFoundError("No modules found");
 
-        const firstModule = modules[0];
+        const firstModule = modules.data[0];
+        
 
-        //Get first subModule
+        //Get subModules
         const submodules = await this.submoduleService.getSubmodulesByModule(firstModule.id);
 
         if(!submodules || submodules.length === 0)
             throw new RecordNotFoundError("No submodules found");
 
-        const firstSubModule = submodules[0];
 
 
         return {
-            courseId: selectedCourseId,
             lessonId: firstLesson.id,
             moduleId: firstModule.id,
-            submoduleId: firstSubModule.id
+            submodules: submodules
         };
     };
     

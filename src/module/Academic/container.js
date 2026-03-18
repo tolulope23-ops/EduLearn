@@ -1,7 +1,9 @@
 import { StudentProfileRepository } from "../Auth/repository/studentProfile.repository.js";
+import { LearningSessionController } from "./controller/learningSession.controller.js";
 import { LessonController } from "./controller/lesson.controller.js";
 import { ModuleController } from "./controller/module.controller.js";
 import { QuizController } from "./controller/quiz.controller.js";
+import { StudentCourseController } from "./controller/studentCourse.controller.js";
 import { SubModuleController } from "./controller/submodules.controller.js";
 
 import { ClassLevelRepository } from "./repository/classLevel.repository.js";
@@ -52,7 +54,7 @@ const enrollmentServiceInstance =  new EnrollmentService(studentProfileRepoInsta
 
 
 //Services
-export const studentCourseServiceInstance = new StudentCourseService(courseRepoInstance, studentCourseRepoInstance);
+export const studentCourseServiceInstance = new StudentCourseService(courseRepoInstance, studentCourseRepoInstance, studentProfileRepoInstance);
 export const lessonServiceInstance = new LessonService(lessonRepoInstance, courseRepoInstance, classLevelRepoInstance, enrollmentServiceInstance);
 
 export const moduleServiceInstance =  new ModuleService(lessonRepoInstance, moduleRepoInstance);
@@ -83,7 +85,7 @@ export const learningServiceInstance =  new LearningService(
 );
 
 export const learningSyncServiceInstance = new LearningSync(subModuleProgressServiceInstance);
-export const learningSessionServiceInsatnce =  new LearningSession(
+export const learningSessionServiceInstance =  new LearningSession(
     enrollmentServiceInstance, 
     courseRepoInstance, 
     lessonRepoInstance,
@@ -102,8 +104,12 @@ export const learningNavigationServiceInstance = new LearningNavigation(
 
 
 //Controller
+export const studentCourseControllerInstance = new StudentCourseController(studentCourseServiceInstance);
+
 export const LessonControllerInstance = new LessonController(lessonServiceInstance);
-export const moduleControllerInstance = new ModuleController(moduleRepoInstance);
+export const moduleControllerInstance = new ModuleController(moduleServiceInstance);
 export const submoduleControllerInstance = new SubModuleController(subModuleServiceInstance);
 
 export const quizControllerInstance = new QuizController(quizServiceInstance);
+export const learningSessionControllerInstance = new LearningSessionController(learningSessionServiceInstance);
+

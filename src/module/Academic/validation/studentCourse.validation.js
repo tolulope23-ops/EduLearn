@@ -8,9 +8,7 @@ const allowedCourses = [
 ];
 
 export const studentCourseSchema = z.object({
-  studentId: z.string().uuid("Invalid student ID"),
-
-  courses: z
+  courseNames: z
     .array(
       z
         .string()
