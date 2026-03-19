@@ -62,16 +62,57 @@ export class UserRepository {
 
   // UPDATE
 
+  // async updateUserAccountStatus(id, accountStatus) {
+  //   try {
+  //     const [affectedRows] = await User.update(
+  //       { accountStatus },
+  //       { where: { id } }
+  //     );
+
+  //     if (affectedRows === 0) {
+  //       throw new RecordNotFoundError("User not found");
+  //     }
+
+  //     const updatedUser = await User.findByPk(id);
+  //     return this.mapToUserEntity(updatedUser);
+
+  //   } catch (error) {
+  //     handleSequelizeError(error);
+  //   }
+  // }
+
+  // async markEmailVerified(userId) {
+  //   try {
+  //     const [affectedRows] = await User.update(
+  //       {
+  //         isEmailVerified: true,
+  //         emailVerifiedAt: new Date(),
+  //       },
+  //       { where: { id: userId } }
+  //     );
+
+  //     if (affectedRows === 0) {
+  //       throw new RecordNotFoundError("User not found");
+  //     }
+
+  //   } catch (error) {
+  //     handleSequelizeError(error);
+  //   }
+  // }
+
+
   async updateUserAccountStatus(id, accountStatus) {
+
     try {
       const [affectedRows] = await User.update(
-        { accountStatus },
+        { accountStatus, updatedAt: new Date() },
         { where: { id } }
       );
 
       if (affectedRows === 0) {
-        throw new RecordNotFoundError("User not found");
-      }
+        console.warn(`User not found for account status update: ${id}`);
+        return null; 
+      };
 
       const updatedUser = await User.findByPk(id);
       return this.mapToUserEntity(updatedUser);
@@ -79,7 +120,7 @@ export class UserRepository {
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
 
   async markEmailVerified(userId) {
     try {
@@ -87,18 +128,21 @@ export class UserRepository {
         {
           isEmailVerified: true,
           emailVerifiedAt: new Date(),
+          updatedAt: new Date(),
         },
         { where: { id: userId } }
       );
 
       if (affectedRows === 0) {
-        throw new RecordNotFoundError("User not found");
+        console.warn(`User not found for email verification: ${userId}`);
+        return null;
       }
 
     } catch (error) {
       handleSequelizeError(error);
-    }
-  }
+    };
+  };
+
 
   // MAPPER
   mapToUserEntity(user) {
