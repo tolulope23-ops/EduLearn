@@ -50,9 +50,9 @@ export class ModuleProgressService{
         if(progress.attemptCount >= 3)
             throw new Error('Maximum attempt reached for this module');
 
-        await this.moduleProgressRepo.incrementAttemptCount(studentId, moduleId);
+        const attemptCount = await this.moduleProgressRepo.incrementAttemptCount(studentId, moduleId);
 
-        return{ Message: 'Attempt Count incremented',  data: progress}
+        return{ Message: 'Attempt Count incremented',  data: attemptCount}
     };
 
 

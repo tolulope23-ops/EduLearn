@@ -4,7 +4,6 @@ import { SubmoduleProgressService } from "./subModuleProgress.service.js";
 
 export class LearningProgress{
     /**
-     * 
      * @param {ModuleProgressService} moduleProgressService 
      * @param {SubmoduleProgressService} submoduleProgressService 
      * @param {SubModuleService} submoduleService
@@ -16,55 +15,93 @@ export class LearningProgress{
         this.submoduleService = submoduleService;
     };
 
-// Get a student's progress on a module
-    async getModuleProgress(studentId, moduleId) {
-        return this.moduleProgressService.getModuleProgress(studentId, moduleId);
-    };
+
+ // Get a student's progress on a module
+  async getModuleProgress(studentId, moduleId) {
+    
+    const moduleProgress = await this.moduleProgressService.getModuleProgress(studentId, moduleId);
+
+    if (!moduleProgress) 
+        throw new RecordNotFoundError("Module progress not found");
+
+    return moduleProgress;
+  };
+
+  // Get a student's progress on a submodule
+  async getSubmoduleProgress(studentId, submoduleId) {
+    const submoduleProgress = await this.submoduleProgressService.getSubmoduleProgress(studentId, submoduleId);
+
+    if (!submoduleProgress) 
+        throw new RecordNotFoundError("Submodule progress not found");
+
+    return submoduleProgress;
+  }
 
 
-// Get a student's progress on a submodule
-    async getSubmoduleProgress(studentId, submoduleId) {
-        return this.submoduleProgressService.getSubmoduleProgress(studentId, submoduleId);
-    };
-
-// Mark submodule as completed for a student
+//Mark submodule completed when the completed button is clicked from the client
     async markSubModuleComplete(studentId, submoduleId) {
-        await this.submoduleProgressService.markSubmoduleCompleted(studentId, submoduleId);
+        //Ensure submodule progress exists
+        let submoduleProgress;
 
-        //Find module, this submodule belongs to
+        try {
+            submoduleProgress = await this.submoduleProgressService.getSubmoduleProgress(studentId, submoduleId);
+        } catch (error) {
+            submoduleProgress = await this.submoduleProgressService.initSubmoduleProgress(studentId, submoduleId);
+        }
+
+        // Mark submodule as completed
+        await this.submoduleProgressService.updateSubmoduleProgress(
+            studentId,
+            submoduleId,
+            { completed: true }
+        );
+
+        // Get module
         const submodule = await this.submoduleService.getSubmoduleById(submoduleId);
-
-        if(!submodule)
-            throw new RecordNotFoundError(`Submodule not found`);
-
         const moduleId = submodule.moduleId;
 
-        //Get all submodules in the module
+        // Ensure module progress exists
+        let moduleProgress;
+
+        try {
+            moduleProgress = await this.moduleProgressService.getModuleProgress(studentId, moduleId);
+        } catch (error) {
+            moduleProgress = await this.moduleProgressService.initModuleProgress(studentId, moduleId);
+        }
+
+        // Get all submodules
         const submodules = await this.submoduleService.getSubmodulesByModule(moduleId);
 
-        //Check progress for each submodules
+        // Get progress list
         const progressList = await Promise.all(
-            submodules.map(submodule => 
-                this.getSubmoduleProgress(studentId, submodule.id)
+            submodules.map(sm =>
+                this.submoduleProgressService.getSubmoduleProgress(studentId, sm.id)
+                    .catch(() => null)
             )
         );
-        
-        //Count completed submodules
-        const completedCount = progressList.filter(p => p && p.completed).length;
-        const totalCount = submodules.length; 
 
-        //Calculate progress percentage
-        const moduleProgress = Math.floor((completedCount / totalCount) * 100);
+        // Calculate progress
+        const completedCount = progressList.filter(p => p && p.completedAt !== null).length;
+        const totalCount = submodules.length;
 
-        //Update module progress
-        const progress = await this.moduleProgressService.updateModuleProgress(studentId, moduleId,
-            {   
-                progress: moduleProgress,
-                completed: moduleProgress === 100, 
-                completionDate: moduleProgress === 100 ? new Date() : null
+        const moduleProgressPercent = Math.floor((completedCount / totalCount) * 100);
+
+        // Update module progress
+        const progress = await this.moduleProgressService.updateModuleProgress(
+            studentId,
+            moduleId,
+            {
+                progress: moduleProgressPercent,
+                score: submoduleProgress.score,
+                completed: moduleProgressPercent === 100,
+                completionDate: moduleProgressPercent === 100 ? new Date() : null
             }
         );
 
-        return {message: "Submodule marked completed, Module Progress: ", data: progress};
+        return {
+            message: "Submodule marked complete and module updated",
+            data: progress
+        };
     };
-}
+
+};

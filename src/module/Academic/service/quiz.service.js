@@ -5,6 +5,9 @@ import { SubModuleRepository } from "../repository/subModule.repository.js";
 import { SubModuleService } from "./subModule.service.js";
 import { ModuleProgressService } from "./moduleProgress.service.js";
 import { LearningProgress } from "./learningProgress.service.js";
+import { StudentProfileRepository } from "../../Auth/repository/studentProfile.repository.js";
+import { SubmoduleProgressService } from "./subModuleProgress.service.js";
+
 
 export class QuizService {
   /**
@@ -13,16 +16,20 @@ export class QuizService {
    * @param {SubModuleRepository} submoduleRepo
    * @param {SubModuleService} submoduleService
    * @param {ModuleProgressService} moduleProgressService
+   * @param {SubmoduleProgressService} submoduleProgressService
    * @param {LearningProgress} learningProgressService
+   * @param {StudentProfileRepository} studentProfileRepo
    */
 
-  constructor(questionRepo, optionRepo, submoduleRepo, submoduleService, moduleProgressService, learningProgressService) {
+  constructor(questionRepo, optionRepo, submoduleRepo, submoduleService, moduleProgressService, submoduleProgressService, learningProgressService, studentProfileRepo) {
     this.questionRepo = questionRepo;
     this.optionRepo = optionRepo;
     this.submoduleRepo = submoduleRepo;
     this.submoduleService = submoduleService;
     this.moduleProgressService = moduleProgressService;
+    this.submoduleProgressService = submoduleProgressService
     this.learningProgressService = learningProgressService;
+    this.studentProfileRepo = studentProfileRepo;
   };
 
 // Create bulk quiz question (Admin)
@@ -54,14 +61,14 @@ export class QuizService {
         return await this.questionRepo.deleteQuizQuestion(id);
     };
 
-// Update quiz option
+//Updates quiz option 
     updateQuizOption = async (id, updateData) => {
-        return await this.quizOptionRepo.updateQuizOption(id, updateData);
+        return await this.optionRepo.updateQuizOption(id, updateData);
     };
 
-// Delete quiz option
+// Deletes quiz option
     deleteQuizOption = async (id) => {
-        return await this.quizOptionRepo.deleteQuizOption(id);
+        return await this.optionRepo.deleteQuizOption(id);
     };
 
 
@@ -80,25 +87,39 @@ export class QuizService {
 
 
 // Fetch all quiz questions with their option for a submodule (student-facing)
-    async getQuizBySubmodule(submoduleId) {
-        const questions = await this.questionRepo.getQuizQuestionsBySubmodule(submoduleId);
+    async getQuizBySubmodule() {
+        const questions = await this.questionRepo.getAllQuizQuestions();
 
         if (!questions || questions.length === 0) {
             throw new RecordNotFoundError("No quiz found for this submodule");
         };
 
-        // Fetch options for each question
-        const quiz = await Promise.all(
-            questions.map(async (q) => {
-                const options = await this.optionRepo.getQuizOptionsByQuestion(q.id);
+        // collect all questionIds
+        const questionIds = questions.map(q => q.id);
 
-                //Return option text, not timestamp
-                return {
-                    question: q.question,
-                    options: options.map(opt => opt.option)
-                };
-            })
-        );
+        // fetch ALL options at once
+        const allOptions = await this.optionRepo.getOptionsByQuestionIds(questionIds);
+
+        // group options by questionId
+        const optionsMap = {};
+
+        for (const opt of allOptions) {
+            if (!optionsMap[opt.questionId]) {
+                optionsMap[opt.questionId] = [];
+            }
+
+            optionsMap[opt.questionId].push({
+                optionId: opt.id,
+                text: opt.option
+            });
+        }
+
+        // map questions with grouped options
+        const quiz = questions.map(q => ({
+            questionId: q.id,
+            question: q.question,
+            options: optionsMap[q.id] || []
+        }));
 
         return quiz;
     };
@@ -107,25 +128,44 @@ export class QuizService {
 // Fetch single question with options (student-facing) 
     async getQuizQuestionWithOptions(questionId) {
         const question = await this.questionRepo.getQuizQuestionById(questionId);
+
         if (!question) 
             throw new RecordNotFoundError("Quiz question not found");
-
-        const options = await this.optionRepo.getQuizOptionsByQuestion(questionId);
         
-        return { ...question, options };
-    };
+        const questionEntity = question;
+        
+        const options = await this.optionRepo.getOptionsByQuestionIds([questionId]);
+
+        const correctOptions = await this.getCorrectOption([questionId]);
+
+        const correctAnswer = correctOptions[questionId];
+
+        return {
+            questionId: questionEntity.id,
+            question: questionEntity.question,
+            options: options.map(opt => ({
+                optionId: opt.id,
+                text: opt.option
+            })),
+            answer: correctAnswer ? {
+                optionId: correctAnswer.id,
+                text: correctAnswer.option
+            } : null
+        };
+}
 
 //Fetch correct option from questions
-    async getCorrectOption(questionId) {
+    async getCorrectOption(questionIds) {
 
-        const options = await this.optionRepo.getQuizOptionsByQuestion(questionId);
+        const correctOptions = await this.optionRepo.getCorrectOptionsByQuestionIds([questionIds]);
 
-        const correctOption = options.find(opt => opt.isCorrect === true);
+        const correctOptionsMap = {};
 
-        if (!correctOption)
-            throw new RecordNotFoundError(`Correct option not found for question ${questionId}`);
+        for (const opt of correctOptions) {
+            correctOptionsMap[opt.questionId] = opt;
+        };
 
-        return correctOption;
+        return correctOptionsMap;
     };
     
 
@@ -150,11 +190,11 @@ export class QuizService {
 
         const submoduleQuestion = question[0];
         
-        const options = await this.optionRepo.getQuizOptionsByQuestion(submoduleQuestion.id);
+        const options = await this.optionRepo.getOptionsByQuestionIds([submoduleQuestion.id]);
         
 
         // Get correct answer for the question
-        const correctAnswer = await this.getCorrectOption(submoduleQuestion.id);
+        const correctAnswer = await this.getCorrectOption([submoduleQuestion.id]);
 
         return {
             // submoduleType: submodule.type,
@@ -169,13 +209,32 @@ export class QuizService {
 //Grade quiz from correct options
     async gradeQuiz(answers) {
 
+        // Extract all question IDs from submitted answers
+        const questionIds = answers.map(a => a.questionId);
+
+        // Fetch all correct options at once
+        const correctOptionsList = await this.optionRepo.getCorrectOptionsByQuestionIds(questionIds);
+
+        // Map correct options by questionId for fast lookup
+        const correctOptionsMap = {};
+
+        for (const opt of correctOptionsList) {
+            correctOptionsMap[opt.questionId] = opt;
+        };
+
+        // Grade quiz without any DB calls inside the loop
         let correctAnswers = 0;
 
         let wrongQuestions = [];
 
         for (const answer of answers) {
+            const correctOption = correctOptionsMap[answer.questionId];
 
-            const correctOption = await this.getCorrectOption(answer.questionId);
+            if (!correctOption) {
+                throw new RecordNotFoundError(
+                    `Correct option not found for question ${answer.questionId}`
+                );
+            };
 
             if (correctOption.id === answer.optionId) {
                 correctAnswers++;
@@ -184,12 +243,11 @@ export class QuizService {
                     questionId: answer.questionId,
                     correctOptionId: correctOption.id
                 });
-            };
+            }
         };
 
         const totalQuestions = answers.length;
         const wrongAnswers = totalQuestions - correctAnswers;
-
         const percentage = Math.floor((correctAnswers / totalQuestions) * 100);
 
         return {
@@ -202,41 +260,80 @@ export class QuizService {
     };
 
 
-    async submitQuiz(studentId, submoduleId, answers) {
+    async submitQuiz(userId, submoduleId, answers) {
 
-        //Grade the quiz
+        const studentId = await this.studentProfileRepo.getStudentIdByUserId(userId);
+
+        // Grade quiz
         const result = await this.gradeQuiz(answers);
-
         const passed = result.percentage >= 70;
 
-        //Get submodule to know module
+        // Get submodule
         const submodule = await this.submoduleService.getSubmoduleById(submoduleId);
-
-        if (!submodule)
-            throw new RecordNotFoundError("Submodule not found");
+        if (!submodule) throw new RecordNotFoundError("Submodule not found");
 
         const moduleId = submodule.moduleId;
 
-        //Increment attempt count for student first attempt
-        const module = await this.learningProgressService.getModuleProgress(studentId, moduleId);
-        if (module.attemptCount === 0){
-            await this.moduleProgressService.incrementAttemptCount(studentId, moduleId)
+        // Ensure module progress exists
+        let moduleProgress;
+        try {
+            moduleProgress = await this.moduleProgressService.getModuleProgress(studentId, moduleId);
+        } catch(error){
+            moduleProgress = await this.moduleProgressService.initModuleProgress(studentId, moduleId);
         };
 
-        //If passed mark submodule complete
-        if (passed) {
-            await this.learningProgressService.markSubModuleComplete(studentId, submoduleId);
-        }else if(module.attemptCount >= 3){
+        // Block if max attempts reached
+        if (moduleProgress.attemptCount >= 3) {
+            throw new Error("Maximum attempts reached. You cannot take this assessment again.");
+        };
+
+        // Increment attempt FIRST
+        await this.moduleProgressService.incrementAttemptCount(studentId, moduleId);
+
+        // Get updated attempt count from DB
+        moduleProgress = await this.moduleProgressService.getModuleProgress(studentId, moduleId);
+
+
+        // Save score 
+        await this.submoduleProgressService.updateSubmoduleProgress(studentId, submoduleId, {
+            score: result.percentage,
+            completed: passed
+        });
+
+        //Mark submodule complete if passed or their attemptCount > 3
+        if (passed || moduleProgress.attemptCount >= 3) {
             await this.learningProgressService.markSubModuleComplete(studentId, submoduleId);
         };
 
-        //Return result
         return {
-            message: 'Quiz Submitted Successfully',
-            passed: passed,
+            message: "Quiz submitted successfully",
+            passed,
             percentage: result.percentage,
-            CorrectAnswer: result.correctAnswers,
-            attemptCount: module.attemptCount
+            correctAnswers: result.correctAnswers,
+            wrongAnswers: result.wrongQuestions,
+            attemptCount: moduleProgress.attemptCount
+        };
+    };
+
+
+    async retakeQuiz(userId, submoduleId) {
+        const studentId = await this.studentProfileRepo.getStudentIdByUserId(userId);
+
+        const submodule = await this.submoduleService.getSubmoduleById(submoduleId);
+
+        if (!submodule) throw new RecordNotFoundError("Submodule not found");
+
+        const moduleId = submodule.moduleId;
+
+        const moduleProgress = await this.moduleProgressService.getModuleProgress(studentId, moduleId);
+
+        if (moduleProgress.attemptCount >= 3) {
+            throw new Error("Maximum attempts reached. You cannot retake this assessment.");
+        }
+
+        return {
+            message: "Retake allowed",
+            attemptCount: moduleProgress.attemptCount
         };
     };
 };

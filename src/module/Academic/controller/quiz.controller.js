@@ -100,11 +100,12 @@ export class QuizController {
         }
     };
 
-// Get all quiz questions with options for a submodule
+// Get all quiz questions with options
     getQuizBySubmodule = async (req, res, next) => {
         try {
-            const { submoduleId } = req.params;
-            const quiz = await this.quizService.getQuizBySubmodule(submoduleId);
+            // const { submoduleId } = req.params;
+
+            const quiz = await this.quizService.getQuizBySubmodule();
             res.status(200).json({ 
                 success: true, 
                 data: quiz 
@@ -146,8 +147,11 @@ export class QuizController {
 // Submit quiz answers
     submitQuiz = async (req, res, next) => {
         try {
-            const { studentId, submoduleId, answers } = req.body;
-            const result = await this.quizService.submitQuiz(studentId, submoduleId, answers);
+            const {submoduleId, answers } = req.body;
+
+            const {userId} = req.user;
+            
+            const result = await this.quizService.submitQuiz(userId, submoduleId, answers);
 
             res.status(200).json({ 
                 success: true, 
@@ -157,4 +161,26 @@ export class QuizController {
             next(err);
         }
     };
+
+
+    retakeQuiz = async (req, res, next) => {
+        try {
+            const {userId} = req.user;
+            const { submoduleId } = req.body;
+            
+
+            const result = await this.quizService.retakeQuiz(
+                userId,
+                submoduleId,
+            );
+
+            return res.status(200).json({
+                success: true,
+                message: result.message,
+                data: result
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
 };

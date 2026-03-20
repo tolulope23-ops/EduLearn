@@ -14,25 +14,19 @@ export class SubmoduleProgressRepository {
   };
 
 
-// UPDATE progress (completed, score, downloaded, downloadedAt)
+// UPDATE or CREATE progress (upsert) progress (completed, score, downloaded, downloadedAt)
   async updateSubModuleProgress(studentId, submoduleId, data) {
     try {
+      // upsert: creates if missing, updates if exists
+      const [progress, created] = await SubmoduleProgress.upsert(
+        { studentId, submoduleId, ...data },
+        { returning: true }
+      );
 
-      const [affectedRows] = await SubmoduleProgress.update(data, {
-        where: { studentId, submoduleId },
-      });
-
-      if (affectedRows === 0) {
-        throw new RecordNotFoundError("SubmoduleProgress not found");
-      };
-
-      const updatedProgress = await SubmoduleProgress.findOne({ where: { studentId, submoduleId } });
-
-      return this.mapToSubModuleProgressEntity(updatedProgress);
-
+      return this.mapToSubModuleProgressEntity(progress);
     } catch (error) {
       handleSequelizeError(error);
-    };
+    }
   };
 
 

@@ -71,14 +71,13 @@ export class QuizQuestionRepository {
   };
 
 
-  // GET ALL BY SUBMODULE ---- Improvement(add moduleId in quiz question model)
-  async getQuizQuestionsBySubmodule() {
+  async getQuizQuestionsBySubmodule(submoduleId) {
     try {
       const questions = await QuizQuestion.findAll({
+        where: { submoduleId },
         order: [["createdAt", "ASC"]],
-    });
-    // return this.mapToQuizQuestionEntity(questions);
-      return questions.map(question => this.mapToQuizQuestionEntity(question));
+      });
+    return questions.map(q => this.mapToQuizQuestionEntity(q));
     } catch (error) {
       handleSequelizeError(error);
     }

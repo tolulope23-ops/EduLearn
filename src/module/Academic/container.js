@@ -1,4 +1,5 @@
 import { StudentProfileRepository } from "../Auth/repository/studentProfile.repository.js";
+import { LearningProgressController } from "./controller/learningProgress.controller.js";
 import { LearningSessionController } from "./controller/learningSession.controller.js";
 import { LessonController } from "./controller/lesson.controller.js";
 import { ModuleController } from "./controller/module.controller.js";
@@ -18,7 +19,7 @@ import { StudentCourseRepository } from "./repository/studentCourses.repository.
 import { SubModuleRepository } from "./repository/subModule.repository.js";
 import { SubmoduleProgressRepository } from "./repository/subModuleProgress.repository.js";
 
-import { EnrollmentService } from "./service/enrollment.services.js";
+import { EnrollmentService } from "./service/enrollment.service.js";
 import { LearningService } from "./service/learning.service.js";
 import { LearningNavigation } from "./service/learningNavigation.service.js";
 import { LearningProgress } from "./service/learningProgress.service.js";
@@ -73,8 +74,11 @@ export const quizServiceInstance = new QuizService(
     quizQuestionRepo, 
     quizOptionRepo,
     subModuleRepoInstance,
+    subModuleServiceInstance,
     moduleProgressServiceInstance,
-    learningProgressServiceInstance
+    subModuleProgressServiceInstance,
+    learningProgressServiceInstance,
+    studentProfileRepoInstance
 );
 
 export const learningServiceInstance =  new LearningService(
@@ -112,4 +116,4 @@ export const submoduleControllerInstance = new SubModuleController(subModuleServ
 
 export const quizControllerInstance = new QuizController(quizServiceInstance);
 export const learningSessionControllerInstance = new LearningSessionController(learningSessionServiceInstance);
-
+export const learningProgressControllerInstance = new LearningProgressController(learningProgressServiceInstance, studentProfileRepoInstance);

@@ -10,6 +10,12 @@ import authRoutes from './module/Auth/routes/auth.route.js';
 import profileRoutes from './module/Auth/routes/studentProfile.route.js';
 import courseAssignRoutes from './module/Academic/routes/studentCourse.routes.js';
 import sessionRoutes from './module/Academic/routes/learningSession.routes.js';
+import progressRoutes from './module/Academic/routes/learningProgress.routes.js';
+
+//Ai Routes
+console.log("todo");
+
+import aiRoutes from './Integration/AI/ai.routes.js';
 
 
 //Admin Routes
@@ -18,7 +24,6 @@ import lessonRoutes from './module/Academic/routes/lesson.routes.js';
 import moduleRoutes from './module/Academic/routes/module.route.js'
 import submoduleRoutes from './module/Academic/routes/submodule.routes.js';
 import quizRoutes from './module/Academic/routes/quiz.routes.js';
-
 
 
 
@@ -33,6 +38,8 @@ app.use('/admin', adminRoutes);
 app.use('/api/v1/lesson', lessonRoutes);
 app.use('/api/v1/module', moduleRoutes);
 app.use('/api/v1/submodule', submoduleRoutes);
+
+
 app.use('/api/v1/submodule/quiz', quizRoutes);
 
 
@@ -41,6 +48,10 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/profile', profileRoutes);
 app.use('/api/v1/courses', courseAssignRoutes);
 app.use('/api/v1/session', sessionRoutes);
+app.use('/api/v1/progress', progressRoutes);
+
+//AI
+app.use('/api/v1/ai', aiRoutes);
 
 
 app.get('/', (req, res) => {

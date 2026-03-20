@@ -1,6 +1,6 @@
 import { CourseRepository } from "../repository/course.repository.js";
 import { LessonRepository } from "../repository/lesson.repository.js";
-import { EnrollmentService } from "./enrollment.services.js";
+import { EnrollmentService } from "./enrollment.service.js";
 import { ModuleService } from "./module.service.js";
 import { SubModuleService } from "./subModule.service.js";
 import { SubmoduleProgressService } from "./subModuleProgress.service.js";

@@ -1,6 +1,7 @@
 import QuizOption from "../models/quizOption.model.js";
 import { handleSequelizeError } from "../../../common/error/sequeliseError.error.js";
 import { RecordNotFoundError } from "../../../common/error/domainError.error.js";
+import { Op } from "sequelize";
 
 export class QuizOptionRepository {
 
@@ -71,19 +72,47 @@ export class QuizOptionRepository {
   };
 
   // GET ALL OPTIONS FOR A QUESTION
-  async getQuizOptionsByQuestion(questionId) {
+  async getOptionsByQuestionIds(questionIds) {
     try {
+      
+      if (!Array.isArray(questionIds)) questionIds = [questionIds];
 
       const options = await QuizOption.findAll({
-        where: { questionId },
-        order: [["createdAt", "ASC"]],
+        where: {
+          questionId: {
+            [Op.in]: questionIds
+          }
+        }
       });
 
-      return options.map(option => this.mapToQuizOptionEntity(option));
+      return options.map(opt => this.mapToQuizOptionEntity(opt));
     } catch (error) {
       handleSequelizeError(error);
     }
-  }
+  };
+
+
+  async getCorrectOptionsByQuestionIds(questionIds) {
+    try {
+
+      if (!Array.isArray(questionIds)) questionIds = [questionIds];
+
+      const options = await QuizOption.findAll({
+        where: {
+          questionId: {
+            [Op.in]: questionIds
+          },
+          isCorrect: true
+        },
+        attributes: ["id", "questionId", "isCorrect"]
+      });
+
+      return options.map(opt => this.mapToQuizOptionEntity(opt));
+    } catch (error) {
+      handleSequelizeError(error)
+    }  
+}
+
 
   // HELPER
   mapToQuizOptionEntity(option) {

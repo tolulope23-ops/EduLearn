@@ -25,57 +25,39 @@ export class SubmoduleProgressService {
 
 // Update progress (completion, score, downloaded)
     async updateSubmoduleProgress(studentId, submoduleId, progressData) {
-        const existing = await this.submoduleProgressRepo.getSubModuleProgress(
-            studentId, submoduleId
-        );
 
-        if (!existing)
-            throw new RecordNotFoundError("Submodule progress not found");
+        // Fetch existing progress (may be null)
+        const existing = await this.submoduleProgressRepo.getSubModuleProgress(studentId, submoduleId);
 
         const updateData = { ...progressData };
 
-        //Only update score if new score is higher
-        if ("score" in progressData) {
-            if (existing.score !== null && progressData.score <= existing.score) {
-                delete updateData.score;
-            };
-        };
-        
-       // Set or clear completion timestamp based on completed boolean
+        //Update score if existing record exists
+        if ("score" in progressData && existing?.score !== undefined) {
+            delete updateData.score;
+        }
+
+        // Handle completed timestamp
         if ("completed" in progressData) {
-            if (progressData.completed === true && !existing.completedAt) {
-                updateData.completedAt = new Date();
-            } else if (progressData.completed === false) {
-                updateData.completedAt = null;
-            };
-        };
+            updateData.completedAt = progressData.completed
+                ? existing?.completedAt ?? new Date() : null;
+        }
 
-        // Set or clear download timestamp based on downloaded boolean
+        // Handle downloaded timestamp
         if ("downloaded" in progressData) {
-            if (progressData.downloaded === true && !existing.downloadedAt) {
-                updateData.downloadedAt = new Date();
-            } else if (progressData.downloaded === false) {
-                updateData.downloadedAt = null;
-            };
-        };
+            updateData.downloadedAt = progressData.downloaded
+                ? existing?.downloadedAt ?? new Date()
+                : null;
+        }
 
-        // Set download timestamp only the first time
-        if ("downloaded" in progressData && progressData.downloaded === true && !existing.downloadedAt) {
-            updateData.downloadedAt = new Date();
-        };
-
-        // // If nothing to update, return existing
-        // if (Object.keys(updateData).length === 0) return existing;
-
-        // progressData can include: completed, score, downloaded, downloadedAt
+        // Upsert will create if missing or update if exists
         const updatedProgress = await this.submoduleProgressRepo.updateSubModuleProgress(
             studentId,
             submoduleId,
             updateData
         );
 
-        return {Message: 'Progress updated', data: updatedProgress};
-    };
+        return { Message: "Progress updated", data: updatedProgress };
+    }
 
 //Mark submodule downloaded when the download button is clicked from the client
     async markSubmoduleDownloaded(studentId, submoduleId) {
@@ -84,16 +66,17 @@ export class SubmoduleProgressService {
         });
     };
 
-//Mark submodule completed when the completed button is clicked from the client
-    async markSubmoduleCompleted(studentId, submoduleId) {
-        return await this.updateSubmoduleProgress(studentId, submoduleId, {
-            completed: true,
-        });
-    };
+// //Mark submodule completed when the completed button is clicked from the client
+//     async markSubmoduleCompleted(studentId, submoduleId) {
+//         return await this.updateSubmoduleProgress(studentId, submoduleId, {
+//             completed: true,
+//         });
+//     };
 
 
 // Get a student's progress for a specific submodule
-    async getSubmoduleProgress(studentId, submoduleId) {
+    
+async getSubmoduleProgress(studentId, submoduleId) {
         const progress = await this.submoduleProgressRepo.getSubModuleProgress(studentId, submoduleId);
 
         if (!progress) 

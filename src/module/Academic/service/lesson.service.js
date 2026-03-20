@@ -2,7 +2,7 @@ import { RecordNotFoundError } from "../../../common/error/domainError.error.js"
 import { ClassLevelRepository } from "../repository/classLevel.repository.js";
 import { CourseRepository } from "../repository/course.repository.js";
 import { LessonRepository } from "../repository/lesson.repository.js";
-import { EnrollmentService } from "./enrollment.services.js";
+import { EnrollmentService } from "./enrollment.service.js";
 
 export class LessonService{
     /**
