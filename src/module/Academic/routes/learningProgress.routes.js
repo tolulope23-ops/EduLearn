@@ -6,9 +6,9 @@ const router = express.Router();
 
 router.use(authMiddleware.authenticate());
 
-router.get("/module", learningProgressControllerInstance.getModuleProgress);
+router.get("/module/:moduleId", learningProgressControllerInstance.getModuleProgress);
 
-router.get("/submodule", learningProgressControllerInstance.getSubmoduleProgress);
+router.get("/submodule/:submoduleId", learningProgressControllerInstance.getSubmoduleProgress);
 
 router.post("/mark-complete", learningProgressControllerInstance.markSubmoduleComplete);
 

@@ -29,6 +29,7 @@ export class LearningProgress{
 
   // Get a student's progress on a submodule
   async getSubmoduleProgress(studentId, submoduleId) {
+    
     const submoduleProgress = await this.submoduleProgressService.getSubmoduleProgress(studentId, submoduleId);
 
     if (!submoduleProgress) 

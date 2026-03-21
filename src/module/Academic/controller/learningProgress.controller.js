@@ -39,11 +39,11 @@ export class LearningProgressController{
 // GET submodule progress
     getSubmoduleProgress = async (req, res, next) => {
         try {
-        const {submoduleId } = req.params;
+        const { submoduleId } = req.params;
 
         const {userId} = req.user;
 
-        const studentId = await this.studentProfileRepo.getStudentIdByUserId(userId);
+        const studentId = await this.studentProfileRepo.getStudentIdByUserId(userId);    
 
         const progress = await this.learningProgressService.getSubmoduleProgress(studentId, submoduleId);
 
