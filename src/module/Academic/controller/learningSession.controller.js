@@ -1,16 +1,18 @@
 import { LearningSession } from "../service/learningSession.service.js";
+import { SubmoduleProgressService } from "../service/subModuleProgress.service.js";
 
 export class LearningSessionController {
 
     /**
      * @param {LearningSession} learningSessionService
+     * @param {SubmoduleProgressService} 
      */
 
     constructor(learningSessionService) {
         this.learningSessionService = learningSessionService;
     };
 
-
+//Start learning logic for new user(student)
     startLearning = async (req, res, next) => {
         try {
             const { userId } = req.user;
@@ -27,6 +29,7 @@ export class LearningSessionController {
         };
     };
 
+
     resumeLesson = async (req, res, next) => {
         try {
             const { studentId, courseId } = req.body;
@@ -34,8 +37,8 @@ export class LearningSessionController {
             const session = await this.learningSessionService.resumeLesson(studentId, courseId);
 
             return res.status(200).json({ data: session });
-        } catch (err) {
-            next(err);
+        } catch (error) {
+            next(error);
         };
     };
 };

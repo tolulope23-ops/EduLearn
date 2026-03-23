@@ -12,5 +12,7 @@ router.get("/submodule/:submoduleId", learningProgressControllerInstance.getSubm
 
 router.post("/mark-complete", learningProgressControllerInstance.markSubmoduleComplete);
 
+router.get("/download/:submoduleId", learningProgressControllerInstance.downloadSubmodule)
+
 
 export default router;

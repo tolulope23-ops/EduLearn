@@ -26,28 +26,26 @@ export class SubmoduleProgressService {
 // Update progress (completion, score, downloaded)
     async updateSubmoduleProgress(studentId, submoduleId, progressData) {
 
-        // Fetch existing progress (may be null)
-        const existing = await this.submoduleProgressRepo.getSubModuleProgress(studentId, submoduleId);
-
-        const updateData = { ...progressData };
+        const updateData = {};
 
         //Update score if existing record exists
-        if ("score" in progressData && existing?.score !== undefined) {
-            delete updateData.score;
-        }
+        if ("score" in progressData) {
+            updateData.score = progressData.score;
+        };
 
         // Handle completed timestamp
         if ("completed" in progressData) {
-            updateData.completedAt = progressData.completed
-                ? existing?.completedAt ?? new Date() : null;
-        }
+            updateData.completedAt = progressData.completed ? new Date() : null;
+        };
 
         // Handle downloaded timestamp
         if ("downloaded" in progressData) {
-            updateData.downloadedAt = progressData.downloaded
-                ? existing?.downloadedAt ?? new Date()
-                : null;
-        }
+           updateData.downloadedAt = progressData.downloaded ? new Date() : null;
+        };
+
+        if ("lastAttemptId" in progressData) {
+            updateData.lastAttemptId = progressData.lastAttemptId;
+        };
 
         // Upsert will create if missing or update if exists
         const updatedProgress = await this.submoduleProgressRepo.updateSubModuleProgress(
@@ -56,27 +54,29 @@ export class SubmoduleProgressService {
             updateData
         );
 
-        return { Message: "Progress updated", data: updatedProgress };
-    }
+        return { Message: "Progress updated", data: updatedProgress};
+    };
 
-//Mark submodule downloaded when the download button is clicked from the client
+
+//Mark submodule downloaded
     async markSubmoduleDownloaded(studentId, submoduleId) {
         return await this.updateSubmoduleProgress(studentId, submoduleId, {
             downloaded: true,
         });
     };
 
-// //Mark submodule completed when the completed button is clicked from the client
-//     async markSubmoduleCompleted(studentId, submoduleId) {
-//         return await this.updateSubmoduleProgress(studentId, submoduleId, {
-//             completed: true,
-//         });
-//     };
+
+//Mark submodule downloaded
+    async markSubmoduleCompleted(studentId, submoduleId) {
+        return await this.updateSubmoduleProgress(studentId, submoduleId, {
+            completed: true,
+        });
+    };
+
 
 
 // Get a student's progress for a specific submodule
-    
-async getSubmoduleProgress(studentId, submoduleId) {
+    async getSubmoduleProgress(studentId, submoduleId) {
         const progress = await this.submoduleProgressRepo.getSubModuleProgress(studentId, submoduleId);
 
         if (!progress) 
@@ -95,6 +95,12 @@ async getSubmoduleProgress(studentId, submoduleId) {
 // Get all progress for a student within a module
     async getSubmoduleProgressByModule(studentId, moduleId) {
         return await this.submoduleProgressRepo.getSubModuleProgressByModule(studentId, moduleId);
+    };
+    
+
+    // Get all progress for a student 
+    async getAllSubmoduleProgress(studentId) {
+        return await this.submoduleProgressRepo.getAllSubModuleProgressByStudent(studentId);
     };
 
 

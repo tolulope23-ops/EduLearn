@@ -1,3 +1,4 @@
+import { StudentProfileRepository } from "../../Auth/repository/studentProfile.repository.js";
 import { CourseRepository } from "../repository/course.repository.js";
 import { LessonRepository } from "../repository/lesson.repository.js";
 import { EnrollmentService } from "./enrollment.service.js";
@@ -13,15 +14,17 @@ export class LearningSession{
      * @param {ModuleService} moduleService
      * @param {SubModuleService} submoduleService
      * @param {SubmoduleProgressService} submoduleProgressService
+     * @param {StudentProfileRepository} studentProfileRepo
      */
 
-    constructor(enrollmentService, CourseRepo, lessonRepo, moduleService, submoduleService, submoduleProgressService){
+    constructor(enrollmentService, CourseRepo, lessonRepo, moduleService, submoduleService, submoduleProgressService, studentProfileRepo){
         this.enrollmentService = enrollmentService;
         this.CourseRepo = CourseRepo;
         this.lessonRepo = lessonRepo;
         this.moduleService = moduleService;
         this.submoduleService = submoduleService;
-        this.submoduleProgressService = submoduleProgressService
+        this.submoduleProgressService = submoduleProgressService;
+        this.studentProfileRepo = studentProfileRepo;
     };
 
 
@@ -82,6 +85,8 @@ export class LearningSession{
             submodules: submodules
         };
     };
+
+
     
 //Resume learning logic for existing user(student)
     async resumeLesson(studentId, courseId) {
@@ -183,4 +188,5 @@ export class LearningSession{
             message: "All lessons completed"
         };
     };
+
 }

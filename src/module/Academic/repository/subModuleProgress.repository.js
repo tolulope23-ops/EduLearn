@@ -1,4 +1,6 @@
 import SubmoduleProgress from "../models/subModuleProgress.model.js";
+import SubModule from "../models/subModule.model.js";
+
 import { handleSequelizeError } from "../../../common/error/sequeliseError.error.js";
 import { RecordNotFoundError } from "../../../common/error/domainError.error.js";
 
@@ -40,7 +42,6 @@ export class SubmoduleProgressRepository {
     }
   };
 
-
 // GET all progress for a student
   async getAllSubModuleProgressByStudent(studentId) {
     try {
@@ -57,10 +58,14 @@ export class SubmoduleProgressRepository {
     try {
       const progressRecords = await SubmoduleProgress.findAll({
         where: { studentId },
-        include: [{
-          association: 'submodule',
-          where: { moduleId },
-        }],
+        include: [
+          {
+            model: SubModule,  
+            as: 'submodule', 
+            where: { moduleId },
+            attributes: ['id', 'title', 'moduleId']
+          }
+        ]
       });
       return progressRecords.map(progress => this.mapToSubModuleProgressEntity(progress));
     } catch (error) {
@@ -93,6 +98,7 @@ export class SubmoduleProgressRepository {
       score: progress.score ?? undefined,
       downloaded: progress.downloadedAt !== null,
       downloadedAt: progress.downloadedAt ?? undefined,
+      lastAttemptId: progress.lastAttemptId,
       createdAt: progress.createdAt,
       updatedAt: progress.updatedAt,
     };

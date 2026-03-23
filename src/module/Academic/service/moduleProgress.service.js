@@ -1,13 +1,19 @@
 import { RecordNotFoundError } from "../../../common/error/domainError.error.js";
 import {ModuleProgressRepository} from "../repository/moduleProgress.repository.js";
+import { SubModuleService } from "./subModule.service.js";
+import { SubmoduleProgressService } from "./subModuleProgress.service.js";
 
 export class ModuleProgressService{
     /**
      * @param {ModuleProgressRepository} moduleProgressRepo
+     * @param {SubModuleService} submoduleService
+     * @param {SubmoduleProgressService} submoduleProgressService
      */
 
-    constructor(moduleProgressRepo) {
+    constructor(moduleProgressRepo, submoduleService, submoduleProgressService) {
         this.moduleProgressRepo = moduleProgressRepo;
+        this.submoduleService = submoduleService;
+        this.submoduleProgressService = submoduleProgressService;
     };
 
 // Initialize progress for a student on a module
@@ -37,6 +43,51 @@ export class ModuleProgressService{
         );
 
         return { Message: 'ModuleProgress Updated', data: updatedProgress };
+    };
+
+    
+    async calculateModuleProgress(studentId, moduleId) {
+
+        // Get all submodules in module
+        const submodules = await this.submoduleService.getSubmodulesByModule(moduleId);
+
+        const total = submodules.length;
+
+        // Get all progress for the student
+        const allProgress = await this.submoduleProgressService.getAllSubmoduleProgress(studentId);
+
+        // Filter progress for only submodules in this module and return an array of objects of submodules
+        const submoduleIds = submodules.map(sm => sm.id);
+
+        //Filter submodules belonging to a student in a particular module
+        const progressList = allProgress.filter(p => submoduleIds.includes(p.submoduleId));
+
+        // Only consider quiz submodules for score
+        const quizSubmodules = submodules.filter(sm => sm.type === 'quiz');
+        
+        //Get the submodule of type quiz Id
+        const quizSubmoduleIds = quizSubmodules.map(sm => sm.id);
+
+
+        const quizScores = progressList
+        .filter(p => quizSubmoduleIds.includes(p.submoduleId))
+        .map(p => p.score)
+        .filter(score => score !== undefined && score !== null);
+
+
+        const moduleScore = quizScores.length ? quizScores[quizScores.length -1] : 0;
+        
+        const completedCount = progressList.filter(p => p.completed).length;
+
+        const percentage = Math.floor((completedCount / total) * 100);
+
+        // Update module progress
+        await this.updateModuleProgress(studentId, moduleId, {
+            progress: percentage,
+            scrore: moduleScore,
+            completed: percentage === 100,
+            completedAt: percentage === 100 ? new Date() : null
+        });
     };
 
 
@@ -77,5 +128,4 @@ export class ModuleProgressService{
     async deleteModuleProgress(studentId, moduleId) {
         return await this.moduleProgressRepo.deleteModuleProgress(studentId, moduleId);
     };
-
 };

@@ -28,6 +28,11 @@ const SubmoduleProgress = sequelize.define("SubmoduleProgress",{
     type: DataTypes.DATE,
     allowNull: true,
   },
+  
+  lastAttemptId: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  }
   },
   {
     tableName: "submodule_progress",

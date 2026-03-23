@@ -11,6 +11,7 @@ import profileRoutes from './module/Auth/routes/studentProfile.route.js';
 import courseAssignRoutes from './module/Academic/routes/studentCourse.routes.js';
 import sessionRoutes from './module/Academic/routes/learningSession.routes.js';
 import progressRoutes from './module/Academic/routes/learningProgress.routes.js';
+import syncProgress from './module/Academic/routes/learningSync.routes.js';
 
 //Ai Routes
 console.log("todo");
@@ -48,7 +49,9 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/profile', profileRoutes);
 app.use('/api/v1/courses', courseAssignRoutes);
 app.use('/api/v1/session', sessionRoutes);
+
 app.use('/api/v1/progress', progressRoutes);
+app.use('/api/v1/session/progress', syncProgress);
 
 //AI
 app.use('/api/v1/ai', aiRoutes);

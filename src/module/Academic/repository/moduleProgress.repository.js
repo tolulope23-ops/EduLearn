@@ -33,21 +33,23 @@ export class ModuleProgressRepository {
   // UPDATE progress (completed, score, completionDate)
   async updateModuleProgress(studentId, moduleId, data) {
     try {
+      // Upsert: create if missing, update if exists
+      const [progress, created] = await ModuleProgress.upsert(
+        {
+          studentId,
+          moduleId,
+          ...data,
+        },
+        {
+          returning: true, // ensures we get the updated/created instance
+        }
+      );
 
-      const [affectedRows] = await ModuleProgress.update(data, {
-        where: { studentId, moduleId },
-      });
-
-      if (affectedRows === 0) {
-        throw new RecordNotFoundError("ModuleProgress not found");
-      }
-
-      const updatedProgress = await ModuleProgress.findOne({ where: { studentId, moduleId } });
-      return this.mapToModuleProgressEntity(updatedProgress);
+      return this.mapToModuleProgressEntity(progress);
     } catch (error) {
       handleSequelizeError(error);
     }
-  };
+  }
 
 
   // GET progress by student + module

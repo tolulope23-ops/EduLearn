@@ -1,50 +1,128 @@
+import { RecordNotFoundError } from "../../../common/error/domainError.error.js";
+import { StudentProfileRepository } from "../../Auth/repository/studentProfile.repository.js";
+import { ModuleProgressService } from "./moduleProgress.service.js";
+import { SubModuleService } from "./subModule.service.js";
 import { SubmoduleProgressService } from "./subModuleProgress.service.js";
 
-export class LearningSync{
+export class LearningSyncService{
     /**
-     * @param {SubmoduleProgressService} submoduleProgressService 
+     * @param {SubmoduleProgressService} submoduleProgressService
+     * @param {StudentProfileRepository} studentProfileRepo
+     * @param {ModuleProgressService} moduleProgressService
+     * @param {SubModuleService} submoduleService
      */
 
-    constructor(submoduleProgressService){
-        this.submoduleProgressService = submoduleProgressService;
-    };
-
-//Sync progress between FE and BE
-    async syncOfflineProgress(studentId, progressUpdates) {
-
-        const results = [];
-
-        for (const update of progressUpdates) {
-
-            // Get existing progress if any
-            let existing = null;
-
-            try {
-                existing = await this.submoduleProgressService.getSubmoduleProgress(studentId, update.submoduleId);
-            } catch {
-                // Init if not exists
-                existing = await this.submoduleProgressService.initSubmoduleProgress(studentId, update.submoduleId);
-            };
-
-            // Merge logic: keep latest or highest values
-            const merged = {
-                completed: existing.completed || update.completed,
-                score: Math.max(existing.score || 0, update.score || 0),
-                attemptCount: Math.max(existing.attemptCount || 0, update.attemptCount || 0),
-                downloaded: existing.downloaded || update.downloaded,
-                downloadedAt: update.downloaded ? new Date(update.downloadedAt) : existing.downloadedAt,
-            };
-
-            const updated = await this.submoduleProgressService.updateSubmoduleProgress(
-                studentId,
-                update.submoduleId,
-                merged
-            );
-
-            results.push(updated);
+        constructor(submoduleProgressService, studentProfileRepo, moduleProgressService, submoduleService){
+            this.submoduleProgressService = submoduleProgressService;
+            this.studentProfileRepo = studentProfileRepo;
+            this.moduleProgressService = moduleProgressService;
+            this.submoduleService = submoduleService;
         };
 
-        return results;
+//Sync progress between local frontend and BE    
+    async syncProgress(userId, progressArray) {
+        if (!Array.isArray(progressArray) || progressArray.length === 0) {
+            throw new Error("No progress data provided");
+        };
+
+        const studentId = await this.studentProfileRepo.getStudentIdByUserId(userId);
+
+        const results = [];
+        const errors = [];
+
+        // Keep track of which modules we need to recalc (avoid duplicates)
+        const modulesToRecalc = new Set();
+
+        for (const record of progressArray) {
+            try {
+                const { submoduleId, completed, score, attemptId } = record;
+
+                if (!submoduleId) {
+                    throw new RecordNotFoundError("submoduleId is required");
+                };
+
+                // Get submodule (needed for type and moduleId)
+                const submodule = await this.submoduleService.getSubmoduleById(submoduleId);
+
+                if (!submodule) {
+                    throw new RecordNotFoundError("Submodule not found");
+                };
+
+                // Get existing progress (for duplicate detection)
+                const existingProgress =
+                    await this.submoduleProgressService.getSubmoduleProgress(
+                        studentId,
+                        submoduleId
+                    );
+                
+                // Determine if this is a new attempt
+                const isNewAttempt =
+                    submodule.type === "quiz" &&
+                    score !== undefined &&
+                    score !== null &&
+                    attemptId &&
+                    attemptId !== existingProgress?.lastAttemptId;
+
+                // Update submodule progress
+                const updateData = {
+                    ...(completed !== undefined && { completedAt: completed ? new Date() : null }),
+                    ...(score !== undefined && { score }),
+                    ...(attemptId !== undefined && { lastAttemptId: attemptId })
+                };
+
+                const updatedSubmodule = await this.submoduleProgressService.updateSubmoduleProgress(
+                    studentId,
+                    submoduleId,
+                    updateData
+                );
+
+                //Increment attempt only if it's truly new attempt
+                if (isNewAttempt) {
+                    await this.moduleProgressService.incrementAttemptCount(
+                        studentId,
+                        submodule.moduleId
+                    );
+                };
+
+                // Track module for recalculation
+                if (submodule.moduleId) {
+                    modulesToRecalc.add(submodule.moduleId);
+                };
+
+                results.push({
+                    submoduleId,
+                    status: "synced",
+                    data: updatedSubmodule.data
+                });
+
+            } catch (error) {
+                errors.push({
+                    submoduleId: record.submoduleId,
+                    status: "failed",
+                    message: error.message
+                });
+            }
+        }
+
+        // Recalculate module progress for all affected submodules have been updated
+        for (const moduleId of modulesToRecalc) {
+            try {
+                await this.moduleProgressService.calculateModuleProgress(studentId, moduleId);
+            } catch (error) {
+                errors.push({
+                    moduleId,
+                    status: "failed",
+                    message: `Module recalculation failed: ${error.message}`
+                });
+            }
+        };
+
+        return {
+            message: "Sync completed",
+            totalDataUpdated: progressArray.length,
+            dataUpdated: results,
+            errors
+        };
     };
 
 };

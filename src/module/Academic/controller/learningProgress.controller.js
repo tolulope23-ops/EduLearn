@@ -1,16 +1,22 @@
 import { StudentProfileRepository } from "../../Auth/repository/studentProfile.repository.js";
 import { LearningProgress } from "../service/learningProgress.service.js";
+import { SubModuleService } from "../service/subModule.service.js";
+import { SubmoduleProgressService } from "../service/subModuleProgress.service.js";
 
 export class LearningProgressController{
 
     /**
      * @param {StudentProfileRepository} studentProfileRepo
      * @param {LearningProgress} learningProgressService
+     * @param {SubModuleService} submoduleService
+     * @param {SubmoduleProgressService} submoduleProgressService
      */
 
-    constructor(learningProgressService, studentProfileRepo) {
+    constructor(learningProgressService, studentProfileRepo, submoduleService, submoduleProgressService) {
         this.learningProgressService = learningProgressService;
         this.studentProfileRepo = studentProfileRepo;
+        this.submoduleService = submoduleService;
+        this.submoduleProgressService = submoduleProgressService;
     };
     
 
@@ -57,7 +63,7 @@ export class LearningProgressController{
         }
     };
 
-
+//Mark Submodule Complete
     markSubmoduleComplete = async (req, res, next) => {
         try {
 
@@ -89,5 +95,40 @@ export class LearningProgressController{
             next(err);
         };
     };
+
+
+    //Download Submodule
+    downloadSubmodule = async (req, res, next) => {
+        try {
+
+            const { submoduleId } = req.params;
+            const { userId } = req.user;
+
+            if (!submoduleId) {
+                throw new BadRequestError("submoduleId is required");
+            };
+
+            const studentId = await this.studentProfileRepo.getStudentIdByUserId(userId);
+
+            if (!studentId) {
+                throw new RecordNotFoundError("Student profile not found");
+            };
+
+            const result = await this.learningProgressService.markSubModuleDownloaded(
+                studentId,
+                submoduleId
+            );
+
+            return res.status(200).json({
+                success: true,
+                message: result.message,
+                data: result.data
+            });
+
+        } catch (err) {
+            next(err);
+        };
+    };
+
 
 };

@@ -1,6 +1,7 @@
 import { StudentProfileRepository } from "../Auth/repository/studentProfile.repository.js";
 import { LearningProgressController } from "./controller/learningProgress.controller.js";
 import { LearningSessionController } from "./controller/learningSession.controller.js";
+import { LearningSyncController } from "./controller/learningSync.controller.js";
 import { LessonController } from "./controller/lesson.controller.js";
 import { ModuleController } from "./controller/module.controller.js";
 import { QuizController } from "./controller/quiz.controller.js";
@@ -24,7 +25,7 @@ import { LearningService } from "./service/learning.service.js";
 import { LearningNavigation } from "./service/learningNavigation.service.js";
 import { LearningProgress } from "./service/learningProgress.service.js";
 import { LearningSession } from "./service/learningSession.service.js";
-import { LearningSync } from "./service/learningSync.service.js";
+import { LearningSyncService } from "./service/learningSync.service.js";
 
 import { LessonService } from "./service/lesson.service.js";
 import { ModuleService } from "./service/module.service.js";
@@ -61,8 +62,9 @@ export const lessonServiceInstance = new LessonService(lessonRepoInstance, cours
 export const moduleServiceInstance =  new ModuleService(lessonRepoInstance, moduleRepoInstance);
 export const subModuleServiceInstance = new SubModuleService(subModuleRepoInstance, moduleRepoInstance);
 
-export const moduleProgressServiceInstance = new ModuleProgressService(moduleProgressRepoInstance);
 export const subModuleProgressServiceInstance = new SubmoduleProgressService(subModuleProgressRepoInstance);
+
+export const moduleProgressServiceInstance = new ModuleProgressService(moduleProgressRepoInstance,subModuleServiceInstance, subModuleProgressServiceInstance);
 
 export const learningProgressServiceInstance = new LearningProgress(
     moduleProgressServiceInstance, 
@@ -88,14 +90,15 @@ export const learningServiceInstance =  new LearningService(
     courseRepoInstance
 );
 
-export const learningSyncServiceInstance = new LearningSync(subModuleProgressServiceInstance);
+export const learningSyncServiceInstance = new LearningSyncService(subModuleProgressServiceInstance, studentProfileRepoInstance, moduleProgressServiceInstance, subModuleServiceInstance);
 export const learningSessionServiceInstance =  new LearningSession(
     enrollmentServiceInstance, 
     courseRepoInstance, 
     lessonRepoInstance,
     moduleServiceInstance, 
     subModuleServiceInstance, 
-    subModuleProgressServiceInstance
+    subModuleProgressServiceInstance,
+    studentProfileRepoInstance
 );
 
 export const learningNavigationServiceInstance = new LearningNavigation(
@@ -116,4 +119,5 @@ export const submoduleControllerInstance = new SubModuleController(subModuleServ
 
 export const quizControllerInstance = new QuizController(quizServiceInstance);
 export const learningSessionControllerInstance = new LearningSessionController(learningSessionServiceInstance);
-export const learningProgressControllerInstance = new LearningProgressController(learningProgressServiceInstance, studentProfileRepoInstance);
+export const learningProgressControllerInstance = new LearningProgressController(learningProgressServiceInstance, studentProfileRepoInstance, subModuleServiceInstance, subModuleProgressServiceInstance);
+export const learningSyncControllerInstance = new LearningSyncController(learningSyncServiceInstance);

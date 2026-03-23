@@ -43,6 +43,11 @@ module.exports = {
         allowNull: true,
       },
 
+      lastAttemptId: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
