@@ -2,7 +2,7 @@ import axios from "axios";
 import { AI_BASE_URL } from "../../common/config/env.config.js";
 import { BadRequestError } from "../../common/error/httpError.error.js";
 
-export async function sendMessageToAI(question, userId) {
+export async function sendMessageToAI(question) {
 
   try {
     const response = await axios.post(`${AI_BASE_URL}/ask`,
