@@ -46,4 +46,32 @@ export class StudentCourseService{
         //Save to DB
         return await this.studentCourseRepo.bulkCreateStudentCourses(courseArray);
     };
+
+    async getAllCoursesForStudent(userId) {
+
+        // Get student profile
+        const profile = await this.studentProfileRepo.getProfileByUserId(userId);
+
+        if (!profile) {
+            throw new RecordNotFoundError("Student profile not found");
+        };
+
+        const studentId = profile.id;
+
+        // Get student-course mappings
+        const studentCourses = await this.studentCourseRepo.getCoursesByStudent(studentId);
+
+        if (!studentCourses || studentCourses.length === 0) {
+            return [];
+        }
+
+        // Extract course IDs
+        const courseIds = studentCourses.map(sc => sc.courseId);
+
+        // Fetch full course details
+        const courses = await this.courseRepo.getCoursesByIds(courseIds);
+
+        return courses;
+    };
+
 };

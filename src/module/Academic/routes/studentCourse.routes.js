@@ -11,6 +11,7 @@ import validateRequest from "../../../common/middleware/validation.middleware.js
 
 // Assign courses to student
   router.post("/assign", validateRequest(studentCourseSchema), studentCourseControllerInstance.assignCourseToStudent);
+  router.get("/my-courses", studentCourseControllerInstance.getAllCoursesForStudent);
 
 export default router;
 

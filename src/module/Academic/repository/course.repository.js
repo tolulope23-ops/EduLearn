@@ -43,6 +43,20 @@ export class CourseRepository{
         }
     };
 
+    async getCoursesByIds(courseIds) {
+        try {
+            const courses = await Course.findAll({
+                where: {
+                    id: courseIds
+                }
+            });
+
+            return courses.map(course => this.mapToCourseEntity(course));
+        } catch (error) {
+            handleSequelizeError(error);
+        }
+    };
+
     async getAllCourses() {
         try {
             const courses = await Course.findAll();
@@ -64,7 +78,7 @@ export class CourseRepository{
 
             return course ? this.mapToCourseEntity(course) : null;
         } catch (error) {
-            
+            handleSequelizeError(error);
         }
     };
 
@@ -76,7 +90,7 @@ export class CourseRepository{
 
             return courses.map(course => this.mapToCourseEntity(course));
         } catch (error) {
-            
+            handleSequelizeError(error);
         }
     };
 
