@@ -62,20 +62,20 @@ export class ModuleProgressService{
         //Filter submodules belonging to a student in a particular module
         const progressList = allProgress.filter(p => submoduleIds.includes(p.submoduleId));
 
-        // // Only consider quiz submodules for score
-        // const quizSubmodules = submodules.filter(sm => sm.type === 'quiz');
+        // Only consider quiz submodules for score
+        const quizSubmodules = submodules.filter(sm => sm.type === 'quiz');
         
-        // //Get the submodule of type quiz Id
-        // const quizSubmoduleIds = quizSubmodules.map(sm => sm.id);
+        //Get the submodule of type quiz Id
+        const quizSubmoduleIds = quizSubmodules.map(sm => sm.id);
 
 
-        // const quizScores = progressList
-        // .filter(p => quizSubmoduleIds.includes(p.submoduleId))
-        // .map(p => p.score)
-        // .filter(score => score !== undefined && score !== null);
+        const quizScores = progressList
+        .filter(p => quizSubmoduleIds.includes(p.submoduleId))
+        .map(p => p.score)
+        .filter(score => score !== undefined && score !== null);
 
 
-        // const moduleScore = quizScores.length ? quizScores[quizScores.length -1] : 0;
+        const moduleScore = quizScores.length ? quizScores[quizScores.length -1] : 0;
         
         const completedCount = progressList.filter(p => p.completed).length;
 
@@ -84,6 +84,7 @@ export class ModuleProgressService{
         // Update module progress
         await this.updateModuleProgress(studentId, moduleId, {
             progress: percentage,
+            score: moduleScore,
             completed: percentage === 100,
             completedAt: percentage === 100 ? new Date() : null
         });

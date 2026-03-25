@@ -43,10 +43,6 @@ export class SubmoduleProgressService {
            updateData.downloadedAt = progressData.downloaded ? new Date() : null;
         };
 
-        if ("lastAttemptId" in progressData) {
-            updateData.lastAttemptId = progressData.lastAttemptId;
-        };
-
         // Upsert will create if missing or update if exists
         const updatedProgress = await this.submoduleProgressRepo.updateSubModuleProgress(
             studentId,

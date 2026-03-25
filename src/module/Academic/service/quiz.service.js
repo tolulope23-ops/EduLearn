@@ -267,6 +267,7 @@ export class QuizService {
 
         // Grade quiz
         const result = await this.gradeQuiz(answers);
+
         const passed = result.percentage >= 70;
 
         // Get submodule
@@ -288,7 +289,7 @@ export class QuizService {
             throw new Error("Maximum attempts reached. You cannot take this assessment again.");
         };
 
-        // Increment attempt FIRST
+        // Increment attempt first
         await this.moduleProgressService.incrementAttemptCount(studentId, moduleId);
 
         // Get updated attempt count from DB

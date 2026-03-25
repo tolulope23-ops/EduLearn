@@ -50,8 +50,9 @@ export class LearningSyncService{
 
 
                 // Update submodule progress
-                const updateData = {
-                    ...(completed !== undefined && { completedAt: completed ? new Date() : null }),
+                const updateData = {...(completed !== undefined && {
+                    completed, 
+                    completedAt: completed ? new Date() : null}),
                     ...(score !== undefined && { score }),
                 };
 
@@ -101,5 +102,4 @@ export class LearningSyncService{
             errors
         };
     };
-
 };
