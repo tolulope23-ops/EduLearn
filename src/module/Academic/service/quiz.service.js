@@ -164,7 +164,7 @@ export class QuizService {
         for (const opt of correctOptions) {
             correctOptionsMap[opt.questionId] = opt;
         };
-
+        
         return correctOptionsMap;
     };
     
@@ -194,14 +194,15 @@ export class QuizService {
         
 
         // Get correct answer for the question
-        const correctAnswer = await this.getCorrectOption([submoduleQuestion.id]);
+        const correctAnswerMap = await this.getCorrectOption([submoduleQuestion.id]);
 
+        const correctOption = correctAnswerMap[submoduleQuestion.id];
+        
+    
         return {
-            // submoduleType: submodule.type,
             question: submoduleQuestion.question,
             options: options.map(opt => opt.option),
-            answer: correctAnswer.option
-
+            correctAnswer: correctOption?.option
         };
     };
 

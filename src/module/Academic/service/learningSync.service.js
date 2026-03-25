@@ -35,7 +35,7 @@ export class LearningSyncService{
 
         for (const record of progressArray) {
             try {
-                const { submoduleId, completed, score, attemptId } = record;
+                const { submoduleId, completed, score} = record;
 
                 if (!submoduleId) {
                     throw new RecordNotFoundError("submoduleId is required");
@@ -48,26 +48,11 @@ export class LearningSyncService{
                     throw new RecordNotFoundError("Submodule not found");
                 };
 
-                // Get existing progress (for duplicate detection)
-                const existingProgress =
-                    await this.submoduleProgressService.getSubmoduleProgress(
-                        studentId,
-                        submoduleId
-                    );
-                
-                // Determine if this is a new attempt
-                const isNewAttempt =
-                    submodule.type === "quiz" &&
-                    score !== undefined &&
-                    score !== null &&
-                    attemptId &&
-                    attemptId !== existingProgress?.lastAttemptId;
 
                 // Update submodule progress
                 const updateData = {
                     ...(completed !== undefined && { completedAt: completed ? new Date() : null }),
                     ...(score !== undefined && { score }),
-                    ...(attemptId !== undefined && { lastAttemptId: attemptId })
                 };
 
                 const updatedSubmodule = await this.submoduleProgressService.updateSubmoduleProgress(
@@ -75,14 +60,6 @@ export class LearningSyncService{
                     submoduleId,
                     updateData
                 );
-
-                //Increment attempt only if it's truly new attempt
-                if (isNewAttempt) {
-                    await this.moduleProgressService.incrementAttemptCount(
-                        studentId,
-                        submodule.moduleId
-                    );
-                };
 
                 // Track module for recalculation
                 if (submodule.moduleId) {

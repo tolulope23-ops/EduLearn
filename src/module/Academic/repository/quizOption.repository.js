@@ -104,7 +104,7 @@ export class QuizOptionRepository {
           },
           isCorrect: true
         },
-        attributes: ["id", "questionId", "isCorrect"]
+        attributes: ["id", "questionId", "option", "isCorrect"]
       });
 
       return options.map(opt => this.mapToQuizOptionEntity(opt));
