@@ -130,5 +130,36 @@ export class LearningProgressController{
         };
     };
 
+    // GET completed submodules in a module
+    getCompletedSubmodulesByModule = async(req, res, next) => {
+        try {
+            const { userId } = req.user;
+            const { moduleId } = req.params;
+
+            if (!moduleId) {
+                return res.status(400).json({
+                    message: "moduleId is required"
+                });
+            };
+
+            const studentId = await this.studentProfileRepo.getStudentIdByUserId(userId);
+
+            const result = await this.learningProgressService.getCompletedSubmodulesByModule(
+                studentId,
+                moduleId
+            );
+
+            return res.status(200).json({
+                success: true,
+                message: result.message,
+                count: result.count,
+                total: result.total,
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
 
 };

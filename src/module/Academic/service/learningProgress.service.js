@@ -39,6 +39,27 @@ export class LearningProgress{
   };
 
 
+//Get completed submodules in a particular module
+    async getCompletedSubmodulesByModule(studentId, moduleId) {
+
+        const submodules = await this.submoduleService.getSubmodulesByModule(moduleId);
+
+        const submoduleIds = submodules.map(sm => sm.id);
+
+        const allProgress = await this.submoduleProgressService.getAllSubmoduleProgress(studentId);
+
+        const completed = allProgress.filter(
+            p => submoduleIds.includes(p.submoduleId) && p.completed
+        );
+
+        return {
+            message: 'Completed Submodules',
+            count: completed.length,
+            total: submoduleIds.length,
+        };
+    };
+
+
 //Mark Submodule downloaded when the download button is clicked
     async markSubModuleDownloaded(studentId, submoduleId) {
 
